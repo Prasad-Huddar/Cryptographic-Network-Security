@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 260" fill="none">
+  <rect width="320" height="260" rx="12" fill="#F8FAFC"/>
+  <circle cx="160" cy="126" r="68" fill="#EFF6FF"/>
+  <!-- Minimalist Blue Shopping Bag / Product Icon -->
+  <path d="M138 92 C138 68, 182 68, 182 92" stroke="#1E3A5F" stroke-width="5" stroke-linecap="round" fill="none"/>
+  <rect x="116" y="90" width="88" height="84" rx="12" fill="#3B82F6"/>
+  <rect x="126" y="90" width="68" height="10" rx="4" fill="#60A5FA" opacity="0.5"/>
+  <!-- Emerald Security Check Badge -->
+  <circle cx="196" cy="166" r="18" fill="#28B885" stroke="#FFFFFF" stroke-width="3"/>
+  <path d="M189 166 L194 171 L204 161" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

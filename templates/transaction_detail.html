@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% block title %}Transaction {{ transaction.transaction_id }}{% endblock %}
+
+{% block content %}
+<div class="bg-soft-slate border-bottom py-4">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb small mb-1">
+                        <li class="breadcrumb-item"><a href="{{ url_for('orders.order_history') }}" class="text-decoration-none text-muted">My Orders</a></li>
+                        {% if order %}
+                        <li class="breadcrumb-item"><a href="{{ url_for('orders.order_detail', order_id=order.id) }}" class="text-decoration-none text-muted">Order #{{ order.order_number }}</a></li>
+                        {% endif %}
+                        <li class="breadcrumb-item active text-navy fw-medium">Transaction {{ transaction.transaction_id[:8] }}...</li>
+                    </ol>
+                </nav>
+                <h1 class="h3 fw-bold text-navy mb-0">
+                    <i class="bi bi-shield-fill-check text-emerald me-2"></i>Cryptographic Transaction Certificate
+                </h1>
+            </div>
+            <span class="badge bg-success fs-6 px-3 py-2">
+                <i class="bi bi-lock-fill me-1"></i>{{ transaction.status|upper }}
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <!-- Primary Security Verification Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-sm-6 col-lg-3">
+            <div class="admin-stat-card">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="text-muted small fw-semibold text-uppercase">Encryption Status</span>
+                    <span class="admin-stat-icon" style="background-color: var(--emerald-50); color: var(--emerald-600); width: 38px; height: 38px; font-size: 1.1rem;">
+                        <i class="bi bi-lock-fill"></i>
+                    </span>
+                </div>
+                {% if transaction.is_encrypted %}
+                <span class="badge bg-success mb-2"><i class="bi bi-check-circle me-1"></i>AES-256-GCM Encrypted</span>
+                <p class="small text-muted mb-0">256-bit ephemeral key wrapped via RSA-OAEP-3072 (SHA-256)</p>
+                {% else %}
+                <span class="badge bg-secondary mb-2">Legacy Record</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-3">
+            <div class="admin-stat-card">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="text-muted small fw-semibold text-uppercase">Digital Signature</span>
+                    <span class="admin-stat-icon" style="background-color: var(--blue-50); color: var(--blue-600); width: 38px; height: 38px; font-size: 1.1rem;">
+                        <i class="bi bi-patch-check-fill"></i>
+                    </span>
+                </div>
+                {% if transaction.is_signature_verified %}
+                <span class="badge bg-success mb-2"><i class="bi bi-patch-check-fill me-1"></i>{{ transaction.verification_status }} (RSA-PSS)</span>
+                <p class="small text-muted mb-0">Verified with registered client RSA-3072 public key</p>
+                {% else %}
+                <span class="badge bg-danger mb-2">{{ transaction.verification_status }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-3">
+            <div class="admin-stat-card">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="text-muted small fw-semibold text-uppercase">Replay Protection</span>
+                    <span class="admin-stat-icon" style="background-color: var(--emerald-50); color: var(--emerald-600); width: 38px; height: 38px; font-size: 1.1rem;">
+                        <i class="bi bi-clock-history"></i>
+                    </span>
+                </div>
+                <span class="badge badge-soft-emerald mb-2"><i class="bi bi-check2-circle me-1"></i>Nonce &amp; Timestamp Valid</span>
+                <p class="small text-muted mb-0">128-bit nonce atomically consumed in server database</p>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-lg-3">
+            <div class="admin-stat-card">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="text-muted small fw-semibold text-uppercase">Record HMAC</span>
+                    <span class="admin-stat-icon" style="background-color: var(--blue-50); color: var(--blue-600); width: 38px; height: 38px; font-size: 1.1rem;">
+                        <i class="bi bi-shield-lock-fill"></i>
+                    </span>
+                </div>
+                {% if hmac_valid %}
+                <span class="badge bg-success mb-2"><i class="bi bi-shield-lock-fill me-1"></i>HMAC-SHA256 Verified</span>
+                <p class="small text-muted mb-0">Database record authentic and unmodified</p>
+                {% else %}
+                <span class="badge bg-warning text-dark mb-2">Unverified</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Metadata & Public Cryptographic Artifacts -->
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="surface-card h-100">
+                <div class="card-header">
+                    <h5 class="h6 fw-bold text-navy mb-0"><i class="bi bi-info-circle me-2 text-primary"></i>Transaction Summary</h5>
+                </div>
+                <div class="card-body p-4">
+                    <table class="table table-borderless mb-0 small">
+                        <tbody>
+                            <tr>
+                                <th class="text-muted ps-0" style="width: 42%;">Transaction ID (UUIDv4):</th>
+                                <td><code>{{ transaction.transaction_id }}</code></td>
+                            </tr>
+                            {% if order %}
+                            <tr>
+                                <th class="text-muted ps-0">Order Number:</th>
+                                <td><a href="{{ url_for('orders.order_detail', order_id=order.id) }}" class="fw-bold text-primary text-decoration-none">#{{ order.order_number }}</a></td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                                <th class="text-muted ps-0">Server-Verified Amount:</th>
+                                <td class="fw-bold text-emerald fs-6">{{ transaction.formatted_amount }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted ps-0">Transaction Status:</th>
+                                <td><span class="badge bg-success">{{ transaction.status|upper }}</span></td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted ps-0">Client Timestamp (IST):</th>
+                                <td>
+                                    <span class="fw-medium text-navy">{{ (transaction.client_timestamp or transaction.created_at)|format_ist }}</span>
+                                    <div class="text-muted" style="font-size: 0.72rem;">UTC Audit: <code>{{ transaction.client_timestamp or transaction.created_at|format_utc_iso }}</code></div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted ps-0">Server Recorded At (IST):</th>
+                                <td title="UTC Audit: {{ transaction.created_at|format_utc_iso }}">{{ transaction.created_at|format_ist }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted ps-0">Consumed Replay Nonce:</th>
+                                <td><code>{{ transaction.replay_nonce or 'N/A' }}</code></td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted ps-0">Cryptographic Suite:</th>
+                                <td><span class="badge bg-navy text-white">{{ transaction.encryption_algorithm }}</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="surface-card h-100">
+                <div class="card-header">
+                    <h5 class="h6 fw-bold text-navy mb-0"><i class="bi bi-file-earmark-lock2 me-2 text-emerald"></i>Stored Cryptographic Envelope (Public Artifacts)</h5>
+                </div>
+                <div class="card-body p-4">
+                    <p class="small text-muted mb-3">
+                        Only public verification artifacts (Base64-encoded ciphertext, 96-bit GCM nonce, 128-bit authentication tag, RSA-OAEP wrapped key, and RSA-PSS signature) are displayed. Private keys and raw AES keys are never exposed.
+                    </p>
+                    <div class="mb-3">
+                        <label class="form-label small text-muted mb-1">AES-256-GCM 96-bit Nonce (Base64)</label>
+                        <div class="crypto-artifact-box">{{ transaction.gcm_nonce or 'N/A' }}</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small text-muted mb-1">AES-256-GCM 128-bit Authentication Tag (Base64)</label>
+                        <div class="crypto-artifact-box">{{ transaction.auth_tag or 'N/A' }}</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small text-muted mb-1">AES-256-GCM Encrypted Payload (Base64 Preview)</label>
+                        <div class="crypto-artifact-box">
+                            {{ (transaction.encrypted_payload[:120] ~ '...') if transaction.encrypted_payload and transaction.encrypted_payload|length > 120 else (transaction.encrypted_payload or 'N/A') }}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small text-muted mb-1">RSA-OAEP Wrapped AES-256 Key (Base64 Preview)</label>
+                        <div class="crypto-artifact-box">
+                            {{ (transaction.wrapped_aes_key[:100] ~ '...') if transaction.wrapped_aes_key else 'N/A' }}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small text-muted mb-1">RSA-PSS Digital Signature (Base64 Preview)</label>
+                        <div class="crypto-artifact-box">
+                            {{ (transaction.digital_signature[:100] ~ '...') if transaction.digital_signature else 'N/A' }}
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label small text-muted mb-1">Record HMAC-SHA256 Digest</label>
+                        <div class="crypto-artifact-box">{{ transaction.integrity_hmac or 'N/A' }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Security Logs{% endblock %}
+
+{% block content %}
+<div class="bg-soft-slate border-bottom py-4">
+    <div class="container-fluid px-lg-5">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <span class="badge badge-soft-emerald mb-1"><i class="bi bi-shield-lock me-1"></i>HMAC-SHA256 Authenticated Audit Trail</span>
+                <h1 class="h3 fw-bold text-navy mb-0">Security Logs</h1>
+            </div>
+            <span class="badge badge-soft-blue">Page {{ logs.page }} of {{ logs.pages or 1 }} ({{ logs.total }} events)</span>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid px-lg-5 py-4">
+    <div class="row g-4">
+        <div class="col-lg-2">
+            <div class="admin-sidebar sticky-lg-top" style="top: 88px;">
+                <div class="admin-sidebar-title">Store Management</div>
+                <nav class="nav flex-column mb-3">
+                    <a class="nav-link" href="{{ url_for('admin.dashboard') }}"><i class="bi bi-grid-1x2"></i><span>Dashboard</span></a>
+                    <a class="nav-link" href="{{ url_for('admin.manage_products') }}"><i class="bi bi-box-seam"></i><span>Products</span></a>
+                    <a class="nav-link" href="{{ url_for('admin.manage_orders') }}"><i class="bi bi-bag-check"></i><span>Orders</span></a>
+                    <a class="nav-link" href="{{ url_for('admin.manage_users') }}"><i class="bi bi-people"></i><span>Users</span></a>
+                </nav>
+                <div class="admin-sidebar-title">Security &amp; Audit</div>
+                <nav class="nav flex-column">
+                    <a class="nav-link active" href="{{ url_for('admin.security_logs') }}"><i class="bi bi-shield-exclamation"></i><span>Security Logs</span></a>
+                    <a class="nav-link" href="{{ url_for('admin.crypto_demo') }}"><i class="bi bi-cpu"></i><span>Crypto Lab</span></a>
+                    {% if current_user.is_authenticated and current_user.is_admin %}
+                    <a class="nav-link" href="{{ url_for('security_lab.lab_dashboard') }}"><i class="bi bi-shield-fill-exclamation"></i><span>Cybersecurity Attack &amp; Defence Lab</span></a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+
+        <div class="col-lg-10">
+            <div class="surface-card overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">Timestamp (IST)</th>
+                                <th>Event Type</th>
+                                <th>Description</th>
+                                <th>Client IP</th>
+                                <th class="pe-4">HMAC-SHA256 Verification</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in logs.items %}
+                            <tr>
+                                <td class="ps-4 small font-monospace text-muted text-nowrap" title="UTC Audit: {{ log.timestamp|format_utc_iso }}">{{ log.timestamp|format_ist }}</td>
+                                <td><span class="badge bg-{{ log.event_badge }}">{{ log.event_type }}</span></td>
+                                <td class="small text-navy">{{ log.description }}</td>
+                                <td class="small font-monospace text-muted">{{ log.ip_address or '127.0.0.1' }}</td>
+                                <td class="pe-4">
+                                    {% if log.integrity_hmac and log.verify_integrity() %}
+                                    <span class="badge badge-soft-emerald" title="HMAC: {{ log.integrity_hmac }}">
+                                        <i class="bi bi-shield-check me-1"></i>Verified
+                                    </span>
+                                    {% elif log.integrity_hmac %}
+                                    <span class="badge bg-danger">
+                                        <i class="bi bi-exclamation-triangle me-1"></i>Tampered
+                                    </span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Legacy</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="5" class="text-center text-muted py-5">No security events logged</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {% if logs.pages > 1 %}
+            <nav class="mt-4" aria-label="Security logs pagination">
+                <ul class="pagination justify-content-center">
+                    {% if logs.has_prev %}
+                    <li class="page-item"><a class="page-link" href="{{ url_for('admin.security_logs', page=logs.prev_num) }}">&laquo; Prev</a></li>
+                    {% endif %}
+                    {% for page_num in logs.iter_pages() %}
+                        {% if page_num %}
+                        <li class="page-item {% if page_num == logs.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('admin.security_logs', page=page_num) }}">{{ page_num }}</a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if logs.has_next %}
+                    <li class="page-item"><a class="page-link" href="{{ url_for('admin.security_logs', page=logs.next_num) }}">Next &raquo;</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

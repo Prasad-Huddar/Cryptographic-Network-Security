@@ -1,0 +1,25 @@
+# Python virtual environment & bytecode
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Environment variables & local secrets
+.env
+.env.local
+
+# Instance directory (SQLite database, RSA private keys, HMAC secret, TLS keys)
+instance/
+*.db
+*.sqlite
+*.sqlite3
+*.key
+*.pem
+
+# IDE & OS artifacts
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

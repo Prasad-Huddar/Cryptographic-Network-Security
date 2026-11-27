@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}Shopping Cart{% endblock %}
+
+{% block content %}
+<div class="bg-soft-slate border-bottom py-4">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb small mb-1">
+                <li class="breadcrumb-item"><a href="{{ url_for('products.index') }}" class="text-decoration-none text-muted">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('products.product_list') }}" class="text-decoration-none text-muted">Products</a></li>
+                <li class="breadcrumb-item active text-navy fw-medium">Shopping Cart</li>
+            </ol>
+        </nav>
+        <h1 class="h3 fw-bold text-navy mb-0">Shopping Cart</h1>
+    </div>
+</div>
+
+<div class="container py-5">
+    {% if cart %}
+    <div class="row g-4 align-items-start">
+        <!-- LEFT COLUMN: Cart Line Items -->
+        <div class="col-lg-8">
+            <div class="surface-card overflow-hidden">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span class="fw-bold text-navy"><i class="bi bi-bag me-2"></i>Cart Items ({{ cart|length }})</span>
+                    <a href="{{ url_for('products.product_list') }}" class="text-decoration-none small fw-semibold text-primary">
+                        <i class="bi bi-arrow-left me-1"></i>Continue Shopping
+                    </a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table mb-0 align-middle">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">Product</th>
+                                <th>Unit Price</th>
+                                <th>Quantity</th>
+                                <th>Subtotal</th>
+                                <th class="text-end pe-4">Remove</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item_id, item in cart.items() %}
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <img src="{{ item.image_url or url_for('static', filename='images/product-placeholder.svg') }}"
+                                             alt="{{ item.name }}"
+                                             class="order-mini-thumb">
+                                        <div>
+                                            <a href="{{ url_for('products.product_detail', product_id=item.product_id) }}"
+                                               class="fw-semibold text-navy text-decoration-none d-block">
+                                                {{ item.name }}
+                                            </a>
+                                            <span class="text-muted" style="font-size: 0.78rem;">Item ID #{{ item.product_id }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="fw-medium text-navy">₹{{ "%.2f"|format(item.price) }}</td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('cart.update_item', product_id=item.product_id) }}" class="d-flex align-items-center gap-2">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <input type="number" name="quantity" value="{{ item.quantity }}" min="0" max="99"
+                                               class="form-control form-control-sm text-center fw-semibold" style="width: 68px;" aria-label="Quantity">
+                                        <button type="submit" class="btn btn-sm btn-outline-navy px-2 py-1" title="Update Quantity">
+                                            <i class="bi bi-arrow-clockwise"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                                <td class="fw-bold text-navy">₹{{ "%.2f"|format(item.price * item.quantity) }}</td>
+                                <td class="text-end pe-4">
+                                    <form method="POST" action="{{ url_for('cart.remove_item', product_id=item.product_id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger px-2 py-1" title="Remove Item">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: Reference-Inspired "Your order" Summary Card -->
+        <div class="col-lg-4">
+            <div class="order-summary-card">
+                <div class="order-summary-header">
+                    <i class="bi bi-bag-check"></i>
+                    <span>Your order</span>
+                </div>
+                <div class="order-summary-body">
+                    {% for item_id, item in cart.items() %}
+                    <div class="order-mini-item">
+                        <img src="{{ item.image_url or url_for('static', filename='images/product-placeholder.svg') }}"
+                             alt="{{ item.name }}"
+                             class="order-mini-thumb">
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold text-navy small">{{ item.name }}</div>
+                            <div class="fw-bold text-navy small">₹{{ "%.2f"|format(item.price * item.quantity) }}</div>
+                            <div class="text-muted" style="font-size: 0.76rem;">Qty: {{ item.quantity }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    <div class="pt-3 mt-2 border-top small">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Subtotal</span>
+                            <span class="fw-semibold text-navy">₹{{ "%.2f"|format(total) }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Shipping</span>
+                            <span class="fw-semibold text-emerald">₹0.00 (Free)</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted">Tax</span>
+                            <span class="fw-semibold text-navy">₹0.00 (Included)</span>
+                        </div>
+                    </div>
+
+                    <div class="order-total-row mb-4">
+                        <span class="fw-bold text-navy fs-5">Total</span>
+                        <span class="order-total-amount">₹{{ "%.2f"|format(total) }}</span>
+                    </div>
+
+                    <a href="{{ url_for('orders.checkout') }}" class="btn btn-emerald w-100 py-2 mb-3">
+                        <i class="bi bi-lock-fill me-2"></i>Proceed to Checkout
+                    </a>
+
+                    <div class="d-flex align-items-center justify-content-between pt-2 border-top small text-muted">
+                        <span>Protected by</span>
+                        <div class="d-flex gap-1">
+                            <span class="badge bg-soft-slate text-navy border">AES-256</span>
+                            <span class="badge bg-soft-slate text-navy border">RSA-3072</span>
+                            <span class="badge bg-soft-slate text-navy border">TLS 1.3</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="surface-card text-center py-5 px-3 mx-auto" style="max-width: 540px;">
+        <div class="benefit-icon-circle mx-auto mb-3" style="width: 64px; height: 64px; font-size: 1.75rem;">
+            <i class="bi bi-cart-x"></i>
+        </div>
+        <h3 class="h4 fw-bold text-navy">Your cart is empty</h3>
+        <p class="text-muted small mb-4">Browse our product catalogue and add items to your cart to begin a secure transaction.</p>
+        <a href="{{ url_for('products.product_list') }}" class="btn btn-emerald px-4">
+            <i class="bi bi-grid me-2"></i>Browse Products
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,409 @@
+{% extends "base.html" %}
+{% block title %}Crypto Demonstration Lab{% endblock %}
+
+{% block content %}
+<div class="bg-soft-slate border-bottom py-4">
+    <div class="container-fluid px-lg-5">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <span class="badge badge-soft-emerald mb-1">
+                    <i class="bi bi-activity me-1"></i>Live Cryptographic Execution &amp; Security Telemetry
+                </span>
+                <h1 class="h3 fw-bold text-navy mb-0">
+                    <i class="bi bi-cpu me-2"></i>Hybrid Cryptography &amp; Security Demonstration Lab
+                </h1>
+                <p class="text-muted small mb-0 mt-1">
+                    Real-time backend execution of AES-256-GCM, RSA-OAEP-3072, RSA-PSS-3072, PBKDF2-HMAC-SHA256, HMAC-SHA256, Replay Guards, and TLS 1.3.
+                </p>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-navy text-white px-3 py-2">
+                    <i class="bi bi-shield-lock-fill text-emerald me-1"></i>Private Keys Isolated
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid px-lg-5 py-4">
+    <div class="row g-4">
+        <!-- Admin Sidebar -->
+        <div class="col-lg-2">
+            <div class="admin-sidebar sticky-lg-top" style="top: 88px;">
+                <div class="admin-sidebar-title">Store Management</div>
+                <nav class="nav flex-column mb-3">
+                    <a class="nav-link" href="{{ url_for('admin.dashboard') }}"><i class="bi bi-grid-1x2"></i><span>Dashboard</span></a>
+                    <a class="nav-link" href="{{ url_for('admin.manage_products') }}"><i class="bi bi-box-seam"></i><span>Products</span></a>
+                    <a class="nav-link" href="{{ url_for('admin.manage_orders') }}"><i class="bi bi-bag-check"></i><span>Orders</span></a>
+                    <a class="nav-link" href="{{ url_for('admin.manage_users') }}"><i class="bi bi-people"></i><span>Users</span></a>
+                </nav>
+                <div class="admin-sidebar-title">Security &amp; Audit</div>
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="{{ url_for('admin.security_logs') }}"><i class="bi bi-shield-exclamation"></i><span>Security Logs</span></a>
+                    <a class="nav-link active" href="{{ url_for('admin.crypto_demo') }}"><i class="bi bi-cpu"></i><span>Crypto Lab</span></a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Security Monitoring Console -->
+        <div class="col-lg-10">
+            <!-- Interactive Payload Input & Individual Execution Triggers -->
+            <div class="surface-card p-4 mb-4">
+                <form method="POST" action="{{ url_for('admin.crypto_demo') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="row g-3 align-items-end mb-3">
+                        <div class="col-lg-9">
+                            <label for="sample_payload" class="form-label">Live Transaction Payload (JSON / Plaintext Input)</label>
+                            <input type="text" class="form-control font-monospace" id="sample_payload" name="sample_payload" value="{{ demo.sample_payload }}">
+                        </div>
+                        <div class="col-lg-3">
+                            <button type="submit" name="demo_action" value="all" class="btn btn-emerald w-100">
+                                <i class="bi bi-play-circle-fill me-2"></i>Run All Live Tests
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 pt-3 border-top">
+                        <button type="submit" name="demo_action" value="aes" class="btn btn-sm btn-outline-navy">
+                            <i class="bi bi-lock me-1 text-emerald"></i>1. AES-256-GCM
+                        </button>
+                        <button type="submit" name="demo_action" value="rsa_oaep" class="btn btn-sm btn-outline-navy">
+                            <i class="bi bi-key me-1 text-primary"></i>2. RSA-OAEP-3072
+                        </button>
+                        <button type="submit" name="demo_action" value="rsa_pss" class="btn btn-sm btn-outline-navy">
+                            <i class="bi bi-vector-pen me-1 text-emerald"></i>3. RSA-PSS Signature
+                        </button>
+                        <button type="submit" name="demo_action" value="pbkdf2" class="btn btn-sm btn-outline-navy">
+                            <i class="bi bi-person-lock me-1 text-primary"></i>4. PBKDF2-SHA256
+                        </button>
+                        <button type="submit" name="demo_action" value="hmac" class="btn btn-sm btn-outline-navy">
+                            <i class="bi bi-shield-check me-1 text-emerald"></i>5. HMAC-SHA256
+                        </button>
+                        <button type="submit" name="demo_action" value="tamper" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-exclamation-octagon me-1"></i>6. Simulate Ciphertext Tampering
+                        </button>
+                        <button type="submit" name="demo_action" value="replay" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-arrow-repeat me-1"></i>7. Simulate Nonce Replay
+                        </button>
+                        <button type="submit" name="demo_action" value="expired_ts" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-clock-history me-1"></i>8. Simulate Expired Timestamp
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="row g-4">
+                <!-- 1. AES-256-GCM Encryption & Decryption -->
+                <div class="col-xl-6">
+                    <div class="crypto-module-card">
+                        <div class="crypto-module-header">
+                            <h5 class="h6 fw-bold text-navy mb-0">
+                                <i class="bi bi-lock-fill text-emerald me-2"></i>1. AES-256-GCM Authenticated Encryption
+                            </h5>
+                            {% if demo.aes.verified %}
+                            <span class="badge bg-success">AUTHENTICATED</span>
+                            {% else %}
+                            <span class="badge bg-danger">FAILED</span>
+                            {% endif %}
+                        </div>
+                        <div class="p-4 small">
+                            <div class="row g-2 mb-3">
+                                <div class="col-sm-6">
+                                    <span class="text-muted d-block">Algorithm Suite</span>
+                                    <code class="text-navy fw-semibold">{{ demo.aes.algorithm }}</code>
+                                </div>
+                                <div class="col-sm-6">
+                                    <span class="text-muted d-block">Key SHA-256 Fingerprint</span>
+                                    <code class="text-navy">{{ demo.aes.key_fingerprint_sha256 }}</code>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <span class="text-muted d-block mb-1">96-bit GCM Nonce (Base64) &amp; 128-bit Auth Tag (Base64)</span>
+                                <div class="crypto-artifact-box">Nonce: {{ demo.aes.nonce_b64 }} | Tag: {{ demo.aes.auth_tag_b64 }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <span class="text-muted d-block mb-1">Encrypted Ciphertext (Base64)</span>
+                                <div class="crypto-artifact-box">{{ demo.aes.ciphertext_b64 }}</div>
+                            </div>
+                            <div class="p-2 rounded bg-soft-slate border">
+                                <span class="fw-semibold text-navy d-block mb-1">Verified Decrypted Output:</span>
+                                <code class="text-emerald">{{ demo.aes.decrypted_payload }}</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. RSA-OAEP Key Wrapping -->
+                <div class="col-xl-6">
+                    <div class="crypto-module-card">
+                        <div class="crypto-module-header">
+                            <h5 class="h6 fw-bold text-navy mb-0">
+                                <i class="bi bi-key-fill text-primary me-2"></i>2. RSA-OAEP Key Wrapping (3072-Bit)
+                            </h5>
+                            {% if demo.rsa_oaep.match %}
+                            <span class="badge bg-success">3072-BIT OAEP VERIFIED</span>
+                            {% else %}
+                            <span class="badge bg-danger">MISMATCH</span>
+                            {% endif %}
+                        </div>
+                        <div class="p-4 small">
+                            <div class="row g-2 mb-3">
+                                <div class="col-sm-6">
+                                    <span class="text-muted d-block">Algorithm Suite</span>
+                                    <code class="text-navy fw-semibold">{{ demo.rsa_oaep.algorithm }}</code>
+                                </div>
+                                <div class="col-sm-6">
+                                    <span class="text-muted d-block">Wrapped Key Output Size</span>
+                                    <code class="text-navy">{{ demo.rsa_oaep.wrapped_key_bytes }} bytes (3072 bits)</code>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <span class="text-muted d-block mb-1">RSA-OAEP Wrapped AES Session Key (Base64 Preview)</span>
+                                <div class="crypto-artifact-box">{{ demo.rsa_oaep.wrapped_key_b64_preview }}</div>
+                            </div>
+                            <div class="row g-2 mb-3">
+                                <div class="col-sm-6">
+                                    <span class="text-muted d-block">Original Key Fingerprint</span>
+                                    <code>{{ demo.rsa_oaep.original_fingerprint }}...</code>
+                                </div>
+                                <div class="col-sm-6">
+                                    <span class="text-muted d-block">Unwrapped Key Fingerprint</span>
+                                    <code>{{ demo.rsa_oaep.unwrapped_fingerprint }}...</code>
+                                </div>
+                            </div>
+                            <div class="p-2 rounded bg-soft-slate border d-flex justify-content-between align-items-center">
+                                <span class="fw-semibold text-navy">Server Private Key Unwrap Match:</span>
+                                <span class="badge bg-{{ 'success' if demo.rsa_oaep.match else 'danger' }}">MATCH ({{ demo.rsa_oaep.match }})</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. RSA-PSS Digital Signature Verification -->
+                <div class="col-xl-6">
+                    <div class="crypto-module-card">
+                        <div class="crypto-module-header">
+                            <h5 class="h6 fw-bold text-navy mb-0">
+                                <i class="bi bi-vector-pen text-emerald me-2"></i>3. RSA-PSS Digital Signature Verification
+                            </h5>
+                            {% if demo.rsa_pss.verified %}
+                            <span class="badge bg-success">SIGNATURE VALID</span>
+                            {% else %}
+                            <span class="badge bg-danger">INVALID</span>
+                            {% endif %}
+                        </div>
+                        <div class="p-4 small">
+                            <div class="row g-2 mb-3">
+                                <div class="col-sm-6">
+                                    <span class="text-muted d-block">Signature Scheme</span>
+                                    <code class="text-navy fw-semibold">{{ demo.rsa_pss.algorithm }}</code>
+                                </div>
+                                <div class="col-sm-6">
+                                    <span class="text-muted d-block">Signature Length</span>
+                                    <code class="text-navy">{{ demo.rsa_pss.signature_bytes }} bytes</code>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <span class="text-muted d-block mb-1">Signed Transaction UUIDv4</span>
+                                <div class="crypto-artifact-box">{{ demo.rsa_pss.transaction_id }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <span class="text-muted d-block mb-1">RSA-PSS Signature (Base64 Preview)</span>
+                                <div class="crypto-artifact-box">{{ demo.rsa_pss.signature_b64_preview }}</div>
+                            </div>
+                            <div class="p-2 rounded bg-soft-slate border d-flex justify-content-between align-items-center">
+                                <span class="fw-semibold text-navy">Client Public Key Verification:</span>
+                                <span class="badge bg-{{ 'success' if demo.rsa_pss.verified else 'danger' }}">VERIFIED ({{ demo.rsa_pss.verified }})</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. PBKDF2-HMAC-SHA256 Password Hashing -->
+                {% if demo.pbkdf2 is defined %}
+                <div class="col-xl-6">
+                    <div class="crypto-module-card">
+                        <div class="crypto-module-header">
+                            <h5 class="h6 fw-bold text-navy mb-0">
+                                <i class="bi bi-person-lock text-primary me-2"></i>4. PBKDF2-HMAC-SHA256 Password Derivation
+                            </h5>
+                            {% if demo.pbkdf2.valid_password_verified and demo.pbkdf2.wrong_password_rejected %}
+                            <span class="badge bg-success">KDF VERIFIED ({{ demo.pbkdf2.iterations }} ITER)</span>
+                            {% else %}
+                            <span class="badge bg-danger">KDF ERROR</span>
+                            {% endif %}
+                        </div>
+                        <div class="p-4 small">
+                            <div class="row g-2 mb-3">
+                                <div class="col-sm-6">
+                                    <span class="text-muted d-block">Key Derivation Function</span>
+                                    <code class="text-navy fw-semibold">{{ demo.pbkdf2.algorithm }}</code>
+                                </div>
+                                <div class="col-sm-6">
+                                    <span class="text-muted d-block">Work Factor (Iterations)</span>
+                                    <code class="text-navy">{{ demo.pbkdf2.iterations }} iterations</code>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <span class="text-muted d-block mb-1">128-Bit Cryptographic Salt (Hex)</span>
+                                <div class="crypto-artifact-box">{{ demo.pbkdf2.salt_hex }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <span class="text-muted d-block mb-1">Derived 256-Bit Hash Digest (Preview)</span>
+                                <div class="crypto-artifact-box">{{ demo.pbkdf2.hash_preview }}</div>
+                            </div>
+                            <div class="p-2 rounded bg-soft-slate border d-flex justify-content-between align-items-center">
+                                <span>Correct Password: <span class="badge bg-success">ACCEPTED ({{ demo.pbkdf2.valid_password_verified }})</span></span>
+                                <span>Wrong Password: <span class="badge bg-danger">REJECTED ({{ demo.pbkdf2.wrong_password_rejected }})</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- 5. HMAC-SHA256 Integrity Verification -->
+                <div class="col-xl-6">
+                    <div class="crypto-module-card">
+                        <div class="crypto-module-header">
+                            <h5 class="h6 fw-bold text-navy mb-0">
+                                <i class="bi bi-shield-check text-emerald me-2"></i>5. HMAC-SHA256 Record &amp; Log Integrity
+                            </h5>
+                            {% if demo.hmac.valid_verification and not demo.hmac.tampered_verification %}
+                            <span class="badge bg-success">INTEGRITY PROTECTED</span>
+                            {% else %}
+                            <span class="badge bg-danger">ERROR</span>
+                            {% endif %}
+                        </div>
+                        <div class="p-4 small">
+                            <div class="mb-2">
+                                <span class="text-muted d-block mb-1">Protected Audit Record</span>
+                                <div class="crypto-artifact-box">{{ demo.hmac.log_entry }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <span class="text-muted d-block mb-1">Computed HMAC-SHA256 Digest (256-Bit Hex)</span>
+                                <div class="crypto-artifact-box">{{ demo.hmac.hmac_hex }}</div>
+                            </div>
+                            <div class="p-2 rounded bg-soft-slate border">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span>Unmodified Record Check:</span>
+                                    <span class="badge bg-success">VALID ({{ demo.hmac.valid_verification }})</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>Tampered Amount (2999.00 &rarr; 1.00) Check:</span>
+                                    <span class="badge bg-danger">REJECTED (Valid={{ demo.hmac.tampered_verification }})</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. Active Ciphertext & Signature Tampering Detection -->
+                <div class="col-xl-6">
+                    <div class="crypto-module-card">
+                        <div class="crypto-module-header">
+                            <h5 class="h6 fw-bold text-navy mb-0">
+                                <i class="bi bi-exclamation-octagon-fill text-danger me-2"></i>6. Active Tampering Attack Simulation
+                            </h5>
+                            {% if demo.tampering.tamper_detected and not demo.tampering.rsa_pss_tampered_verified %}
+                            <span class="badge bg-danger">ATTACK BLOCKED</span>
+                            {% else %}
+                            <span class="badge bg-warning">UNEXPECTED</span>
+                            {% endif %}
+                        </div>
+                        <div class="p-4 small">
+                            <p class="text-muted mb-2">
+                                Simulates an in-transit MITM attacker flipping 1 byte (<code>ciphertext[0] ^= 0xFF</code>) inside the encrypted transaction payload.
+                            </p>
+                            <div class="mb-3">
+                                <span class="text-muted d-block mb-1">Corrupted Ciphertext (Base64)</span>
+                                <div class="crypto-artifact-box">{{ demo.tampering.tampered_ciphertext_b64 }}</div>
+                            </div>
+                            <div class="p-2 rounded bg-soft-slate border">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span>RSA-PSS Verification on Tampered Package:</span>
+                                    <span class="badge bg-danger">REJECTED (Valid={{ demo.tampering.rsa_pss_tampered_verified }})</span>
+                                </div>
+                                <div class="text-danger fw-semibold mt-1">
+                                    AES-GCM Tag Verification: {{ demo.tampering.aes_gcm_result }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 7. Replay Attack Detection (Atomic Nonce & UTC Timestamp) -->
+                <div class="col-xl-6">
+                    <div class="crypto-module-card">
+                        <div class="crypto-module-header">
+                            <h5 class="h6 fw-bold text-navy mb-0">
+                                <i class="bi bi-arrow-repeat text-danger me-2"></i>7. Replay Attack Detection (Nonce &amp; Timestamp)
+                            </h5>
+                            {% if demo.replay.duplicate_nonce_rejected and not demo.replay.expired_timestamp_valid %}
+                            <span class="badge bg-danger">REPLAY REJECTED</span>
+                            {% else %}
+                            <span class="badge bg-warning">UNEXPECTED</span>
+                            {% endif %}
+                        </div>
+                        <div class="p-4 small">
+                            <div class="mb-2">
+                                <span class="text-muted d-block mb-1">128-Bit Cryptographic Nonce Tested in SQLite</span>
+                                <div class="crypto-artifact-box">{{ demo.replay.original_nonce }}</div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>1st Submission (Atomic Savepoint Insert):</span>
+                                <span class="badge bg-success">ACCEPTED ({{ demo.replay.first_nonce_accepted }})</span>
+                            </div>
+                            <div class="mb-2">
+                                <span class="text-muted d-block">2nd Submission (Duplicate Nonce Replay):</span>
+                                <span class="text-danger fw-semibold">REJECTED &mdash; {{ demo.replay.duplicate_nonce_error }}</span>
+                            </div>
+                            <div class="p-2 rounded bg-soft-slate border">
+                                <div><strong>Expired Timestamp ({{ demo.replay.expired_timestamp }}):</strong></div>
+                                <div class="text-danger fw-semibold">REJECTED &mdash; {{ demo.replay.expired_timestamp_error }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 8. TLS 1.3 Connection Status & Certificate Verification -->
+                {% if demo.tls13 is defined %}
+                <div class="col-xl-6">
+                    <div class="crypto-module-card">
+                        <div class="crypto-module-header">
+                            <h5 class="h6 fw-bold text-navy mb-0">
+                                <i class="bi bi-globe2 text-emerald me-2"></i>8. TLS 1.3 Handshake &amp; X.509 Status
+                            </h5>
+                            {% if demo.tls13.verified %}
+                            <span class="badge bg-success">TLS 1.3 VERIFIED</span>
+                            {% else %}
+                            <span class="badge bg-danger">TLS ERROR</span>
+                            {% endif %}
+                        </div>
+                        <div class="p-4 small">
+                            <div class="row g-2 mb-3">
+                                <div class="col-sm-6">
+                                    <span class="text-muted d-block">Negotiated Protocol</span>
+                                    <code class="text-emerald fw-bold">{{ demo.tls13.protocol_version }}</code>
+                                </div>
+                                <div class="col-sm-6">
+                                    <span class="text-muted d-block">AEAD Cipher Suite</span>
+                                    <code class="text-navy fw-semibold">{{ demo.tls13.cipher_suite }} ({{ demo.tls13.cipher_bits }}-bit)</code>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <span class="text-muted d-block mb-1">Verified Server Hostname &amp; SAN</span>
+                                <div class="crypto-artifact-box">{{ demo.tls13.server_hostname }}</div>
+                            </div>
+                            <div class="p-2 rounded bg-soft-slate border d-flex justify-content-between align-items-center">
+                                <span><strong>Trust Anchor CA:</strong> {{ demo.tls13.ca_issuer }}</span>
+                                <span class="badge badge-soft-emerald">SAN &amp; Chain Valid</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

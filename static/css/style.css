@@ -1,0 +1,1219 @@
+/* ==========================================================================
+   SecureShop — Commercial E-Commerce & Cryptographic Security Design System
+   Inspired by the Reference Visual Design:
+   - Deep Navy Navigation & Order Headers (#132B47 / #102A43)
+   - Emerald Green Primary CTAs & Security Indicators (#28B885 / #219E72)
+   - Royal Blue Brand Accents (#2563EB / #3B82F6)
+   - Clean White (#FFFFFF) & Soft Slate (#F7F9FC) Surfaces
+   - Thin 1px Borders (#E6ECF2), Rounded Cards (14px), Subtle Elevation
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+    --navy-950: #0b1c2f;
+    --navy-900: #102a43;
+    --navy-800: #132b47;
+    --navy-700: #1e3a5f;
+    --navy-600: #334e68;
+
+    --emerald-600: #219e72;
+    --emerald-500: #28b885;
+    --emerald-400: #34d399;
+    --emerald-100: #d1fae5;
+    --emerald-50:  #ebf8f3;
+
+    --blue-600: #2563eb;
+    --blue-500: #3b82f6;
+    --blue-100: #dbeafe;
+    --blue-50:  #eff6ff;
+
+    --slate-900: #102a43;
+    --slate-700: #334e68;
+    --slate-600: #486581;
+    --slate-500: #627d98;
+    --slate-400: #829ab1;
+    --slate-200: #e6ecf2;
+    --slate-100: #f1f5f9;
+    --slate-50:  #f7f9fc;
+
+    --danger-600: #dc2626;
+    --danger-50:  #fef2f2;
+    --warning-600: #d97706;
+    --warning-50:  #fffbeb;
+
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+
+    --shadow-xs: 0 1px 3px rgba(16, 42, 67, 0.04);
+    --shadow-sm: 0 4px 16px rgba(16, 42, 67, 0.05);
+    --shadow-md: 0 10px 28px rgba(16, 42, 67, 0.08);
+    --shadow-lg: 0 16px 40px rgba(16, 42, 67, 0.11);
+
+    /* Legacy compatibility variables */
+    --navy: #102a43;
+    --navy-light: #1e3a5f;
+    --blue-accent: #2563eb;
+    --light-blue: #eff6ff;
+    --bg-light: #f7f9fc;
+}
+
+/* ---------- Base & Reset ---------- */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #ffffff;
+    color: var(--slate-900);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+}
+
+main {
+    flex: 1;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--navy-900);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+code, pre, .font-monospace {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+}
+
+.text-navy {
+    color: var(--navy-900) !important;
+}
+
+.text-emerald {
+    color: var(--emerald-500) !important;
+}
+
+.bg-navy {
+    background-color: var(--navy-800) !important;
+}
+
+.bg-soft-slate {
+    background-color: var(--slate-50) !important;
+}
+
+/* ---------- Top Navigation Bar (Reference Inspired) ---------- */
+.secureshop-navbar {
+    background-color: var(--navy-800);
+    padding: 0.85rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.secureshop-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    color: #ffffff !important;
+    font-weight: 700;
+    font-size: 1.2rem;
+    letter-spacing: 0.03em;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.secureshop-brand-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--emerald-400);
+    font-size: 1.1rem;
+}
+
+.secureshop-navbar .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.82) !important;
+    font-weight: 500;
+    font-size: 0.9rem;
+    padding: 0.45rem 0.72rem !important;
+    white-space: nowrap;
+    position: relative;
+    transition: color 0.18s ease;
+}
+
+.secureshop-navbar .navbar-nav .nav-link:hover,
+.secureshop-navbar .navbar-nav .nav-link.active {
+    color: #ffffff !important;
+}
+
+.secureshop-navbar .navbar-nav .nav-link.active::after {
+    content: '';
+    position: absolute;
+    left: 0.72rem;
+    right: 0.72rem;
+    bottom: 0.1rem;
+    height: 2.5px;
+    background-color: var(--emerald-500);
+    border-radius: 2px;
+}
+
+/* Navbar Inline Search Form */
+.nav-search-form {
+    position: relative;
+    width: 210px;
+}
+
+.nav-search-input {
+    background-color: rgba(255, 255, 255, 0.09);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+    border-radius: 999px;
+    padding: 0.38rem 2.2rem 0.38rem 0.95rem;
+    font-size: 0.85rem;
+    width: 100%;
+    transition: all 0.2s ease;
+}
+
+.nav-search-input::placeholder {
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.nav-search-input:focus {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: var(--emerald-400);
+    outline: none;
+    color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(40, 184, 133, 0.2);
+}
+
+.nav-search-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.75);
+    padding: 0.2rem 0.35rem;
+    cursor: pointer;
+}
+
+.nav-search-btn:hover {
+    color: #ffffff;
+}
+
+/* Navbar Action Icons (Cart, User, Admin) */
+.nav-icon-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.88) !important;
+    padding: 0.45rem 0.65rem;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    position: relative;
+    transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.nav-icon-link:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #ffffff !important;
+}
+
+.cart-badge-emerald {
+    background-color: var(--emerald-500) !important;
+    color: #ffffff !important;
+    font-size: 0.68rem;
+    font-weight: 700;
+    min-width: 19px;
+    height: 19px;
+    padding: 0 5px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--navy-800);
+}
+
+/* ---------- Buttons (Emerald Green & Brand Blue) ---------- */
+.btn {
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    padding: 0.55rem 1.2rem;
+    font-size: 0.92rem;
+    transition: all 0.18s ease;
+}
+
+.btn-emerald,
+.btn-success {
+    background-color: var(--emerald-500) !important;
+    border-color: var(--emerald-500) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 6px rgba(40, 184, 133, 0.22);
+}
+
+.btn-emerald:hover,
+.btn-success:hover {
+    background-color: var(--emerald-600) !important;
+    border-color: var(--emerald-600) !important;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(40, 184, 133, 0.3);
+}
+
+.btn-primary {
+    background-color: var(--blue-600);
+    border-color: var(--blue-600);
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background-color: #1d4ed8;
+    border-color: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.btn-navy {
+    background-color: var(--navy-800);
+    border-color: var(--navy-800);
+    color: #ffffff;
+}
+
+.btn-navy:hover {
+    background-color: var(--navy-900);
+    border-color: var(--navy-900);
+    color: #ffffff;
+}
+
+.btn-outline-navy {
+    color: var(--navy-900);
+    border: 1px solid var(--slate-200);
+    background-color: #ffffff;
+}
+
+.btn-outline-navy:hover {
+    background-color: var(--slate-50);
+    border-color: var(--slate-400);
+    color: var(--navy-900);
+}
+
+.btn-outline-primary {
+    color: var(--blue-600);
+    border-color: #bfdbfe;
+    background-color: #ffffff;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--blue-50);
+    border-color: var(--blue-500);
+    color: var(--blue-600);
+}
+
+/* ---------- Hero Section (Reference Image Layout) ---------- */
+.hero-commercial {
+    background-color: #ffffff;
+    padding: 3.75rem 0 3rem;
+    border-bottom: 1px solid var(--slate-200);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background-color: var(--emerald-50);
+    color: var(--emerald-600);
+    border: 1px solid var(--emerald-100);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    margin-bottom: 1.15rem;
+}
+
+.hero-title {
+    font-size: 2.85rem;
+    font-weight: 800;
+    color: var(--navy-900);
+    line-height: 1.16;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.1rem;
+}
+
+.hero-subtitle {
+    font-size: 1.06rem;
+    color: var(--slate-500);
+    line-height: 1.65;
+    max-width: 500px;
+    margin-bottom: 1.85rem;
+}
+
+.hero-illustration-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-illustration-box img {
+    width: 100%;
+    max-width: 580px;
+    height: auto;
+}
+
+/* ---------- Product Cards (Reference Image Style) ---------- */
+.product-card {
+    background-color: #ffffff;
+    border: 1px solid var(--slate-200) !important;
+    border-radius: var(--radius-lg) !important;
+    padding: 0.85rem;
+    box-shadow: var(--shadow-xs) !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md) !important;
+    border-color: #cbd5e1 !important;
+}
+
+.product-image-wrapper {
+    position: relative;
+    background-color: var(--slate-50);
+    border-radius: var(--radius-md);
+    height: 205px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin-bottom: 0.9rem;
+}
+
+.product-image {
+    max-height: 175px;
+    width: 100%;
+    object-fit: contain;
+    padding: 0.85rem;
+    transition: transform 0.25s ease;
+}
+
+.product-card:hover .product-image {
+    transform: scale(1.04);
+}
+
+.category-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: rgba(255, 255, 255, 0.92) !important;
+    color: var(--navy-800) !important;
+    border: 1px solid var(--slate-200);
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 0.28rem 0.6rem;
+    border-radius: 999px;
+    letter-spacing: 0.02em;
+}
+
+.stock-pill {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 0.25rem 0.55rem;
+    border-radius: 999px;
+}
+
+.product-card-body {
+    padding: 0.2rem 0.25rem 0.25rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.product-card-title {
+    font-size: 0.98rem;
+    font-weight: 600;
+    color: var(--navy-900);
+    margin-bottom: 0.25rem;
+    text-decoration: none;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.product-card-title:hover {
+    color: var(--blue-600);
+}
+
+.product-card-desc {
+    font-size: 0.82rem;
+    color: var(--slate-500);
+    margin-bottom: 0.65rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex-grow: 1;
+}
+
+.product-card-price {
+    font-size: 1.08rem;
+    font-weight: 700;
+    color: var(--navy-900);
+    margin-bottom: 0.75rem;
+}
+
+.product-card-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: auto;
+}
+
+.btn-add-cart {
+    background-color: var(--emerald-500);
+    border: 1px solid var(--emerald-500);
+    color: #ffffff;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 0.42rem 0.95rem;
+    border-radius: 7px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    text-decoration: none;
+    transition: all 0.18s ease;
+}
+
+.btn-add-cart:hover {
+    background-color: var(--emerald-600);
+    border-color: var(--emerald-600);
+    color: #ffffff;
+}
+
+.btn-view-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid var(--slate-200);
+    background-color: #ffffff;
+    color: var(--slate-500);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.18s ease;
+}
+
+.btn-view-icon:hover {
+    border-color: var(--blue-500);
+    color: var(--blue-600);
+    background-color: var(--blue-50);
+}
+
+/* ---------- Shopping Benefits / Trust Strip (Reference Footer Bar) ---------- */
+.benefits-strip {
+    background-color: #ffffff;
+    border-top: 1px solid var(--slate-200);
+    border-bottom: 1px solid var(--slate-200);
+    padding: 2.25rem 0;
+}
+
+.benefit-item {
+    display: flex;
+    align-items: center;
+    gap: 0.95rem;
+}
+
+.benefit-icon-circle {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    border-radius: 50%;
+    background-color: var(--blue-50);
+    color: var(--navy-800);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.benefit-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--navy-900);
+    margin-bottom: 0.1rem;
+}
+
+.benefit-sub {
+    font-size: 0.8rem;
+    color: var(--slate-500);
+    margin-bottom: 0;
+}
+
+/* ---------- Security Feature Cards ---------- */
+.security-feature-card {
+    background-color: #ffffff;
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-md);
+    padding: 1.35rem;
+    height: 100%;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.security-feature-card:hover {
+    box-shadow: var(--shadow-sm);
+    border-color: #cbd5e1;
+}
+
+.security-icon-box {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background-color: var(--emerald-50);
+    color: var(--emerald-600);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin-bottom: 0.85rem;
+}
+
+/* ---------- Category Pills ---------- */
+.category-pill-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 1.25rem;
+    background-color: #ffffff;
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-md);
+    color: var(--navy-900);
+    font-weight: 600;
+    font-size: 0.92rem;
+    text-decoration: none;
+    transition: all 0.18s ease;
+}
+
+.category-pill-card:hover,
+.category-pill-card.active {
+    border-color: var(--emerald-500);
+    background-color: var(--emerald-50);
+    color: var(--navy-900);
+    transform: translateY(-2px);
+}
+
+/* ---------- Reference-Inspired "Your order" Card (Cart & Checkout) ---------- */
+.order-summary-card {
+    background-color: #ffffff;
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.order-summary-header {
+    background-color: var(--navy-800);
+    color: #ffffff;
+    padding: 1rem 1.35rem;
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.order-summary-body {
+    padding: 1.35rem;
+}
+
+.order-mini-item {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--slate-100);
+}
+
+.order-mini-item:last-of-type {
+    border-bottom: none;
+}
+
+.order-mini-thumb {
+    width: 56px;
+    height: 56px;
+    min-width: 56px;
+    border-radius: 10px;
+    background-color: var(--slate-50);
+    border: 1px solid var(--slate-200);
+    padding: 6px;
+    object-fit: contain;
+}
+
+.order-total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0.85rem;
+    margin-top: 0.85rem;
+    border-top: 1px solid var(--slate-200);
+}
+
+.order-total-amount {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--emerald-500);
+}
+
+/* ---------- Surface Cards & Tables ---------- */
+.surface-card,
+.card {
+    background-color: #ffffff;
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xs);
+}
+
+.card-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid var(--slate-200);
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0 !important;
+}
+
+.table th {
+    font-weight: 600;
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--slate-500);
+    background-color: var(--slate-50);
+    border-bottom: 1px solid var(--slate-200);
+    padding: 0.85rem 1rem;
+}
+
+.table td {
+    padding: 0.95rem 1rem;
+    vertical-align: middle;
+    color: var(--slate-700);
+    border-bottom: 1px solid var(--slate-100);
+}
+
+/* ---------- Forms ---------- */
+.form-label {
+    font-weight: 600;
+    font-size: 0.86rem;
+    color: var(--navy-900);
+    margin-bottom: 0.4rem;
+}
+
+.form-control,
+.form-select {
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-sm);
+    padding: 0.6rem 0.9rem;
+    font-size: 0.92rem;
+    color: var(--navy-900);
+    background-color: #ffffff;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--blue-500);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
+}
+
+.input-group-text {
+    background-color: var(--slate-50);
+    border: 1px solid var(--slate-200);
+    color: var(--slate-500);
+}
+
+/* ---------- Authentication Layout ---------- */
+.auth-wrapper {
+    background-color: var(--slate-50);
+    min-height: calc(100vh - 180px);
+    display: flex;
+    align-items: center;
+    padding: 3rem 0;
+}
+
+.auth-card {
+    background-color: #ffffff;
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
+
+.auth-shield-badge {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background-color: var(--emerald-50);
+    border: 1px solid var(--emerald-100);
+    color: var(--emerald-500);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.65rem;
+}
+
+/* ---------- Enterprise Admin Layout & Sidebar ---------- */
+.admin-sidebar {
+    background-color: #ffffff;
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-lg);
+    padding: 1.15rem;
+    box-shadow: var(--shadow-xs);
+}
+
+.admin-sidebar-title {
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--slate-400);
+    padding: 0 0.65rem;
+    margin-bottom: 0.65rem;
+}
+
+.admin-sidebar .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    color: var(--slate-600) !important;
+    font-weight: 500;
+    font-size: 0.9rem;
+    padding: 0.6rem 0.85rem;
+    border-radius: var(--radius-sm);
+    margin-bottom: 0.2rem;
+    transition: all 0.15s ease;
+}
+
+.admin-sidebar .nav-link:hover {
+    background-color: var(--slate-50);
+    color: var(--navy-900) !important;
+}
+
+.admin-sidebar .nav-link.active {
+    background-color: var(--navy-800);
+    color: #ffffff !important;
+    font-weight: 600;
+}
+
+.admin-stat-card {
+    background-color: #ffffff;
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-lg);
+    padding: 1.35rem;
+    box-shadow: var(--shadow-xs);
+    height: 100%;
+}
+
+.admin-stat-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+}
+
+/* ---------- Crypto Lab Monitoring Console ---------- */
+.crypto-module-card {
+    background-color: #ffffff;
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xs);
+    height: 100%;
+    overflow: hidden;
+}
+
+.crypto-module-header {
+    background-color: var(--slate-50);
+    border-bottom: 1px solid var(--slate-200);
+    padding: 0.9rem 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.crypto-artifact-box {
+    background-color: var(--slate-50);
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-sm);
+    padding: 0.55rem 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--navy-900);
+    word-break: break-all;
+}
+
+/* ---------- Badges & Alerts ---------- */
+.badge {
+    font-weight: 600;
+    padding: 0.35em 0.68em;
+    border-radius: 6px;
+}
+
+.badge-soft-emerald {
+    background-color: var(--emerald-50);
+    color: var(--emerald-600);
+    border: 1px solid var(--emerald-100);
+}
+
+.badge-soft-blue {
+    background-color: var(--blue-50);
+    color: var(--blue-600);
+    border: 1px solid var(--blue-100);
+}
+
+.alert {
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    font-size: 0.92rem;
+    font-weight: 500;
+}
+
+.alert-success {
+    background-color: var(--emerald-50);
+    border-color: var(--emerald-100);
+    color: #065f46;
+}
+
+.alert-danger {
+    background-color: var(--danger-50);
+    border-color: #fecaca;
+    color: #991b1b;
+}
+
+/* ---------- Footer ---------- */
+.secureshop-footer {
+    background-color: var(--navy-900) !important;
+    color: rgba(255, 255, 255, 0.78);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.secureshop-footer h5,
+.secureshop-footer h6 {
+    color: #ffffff !important;
+    font-weight: 700;
+}
+
+.secureshop-footer a {
+    color: rgba(255, 255, 255, 0.68);
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.secureshop-footer a:hover {
+    color: var(--emerald-400) !important;
+}
+
+/* ---------- Responsive Adjustments ---------- */
+@media (max-width: 1199.98px) {
+    .nav-search-form {
+        width: 100%;
+        margin: 0.65rem 0;
+    }
+    .secureshop-navbar .navbar-nav .nav-link.active::after {
+        display: none;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .hero-title {
+        font-size: 2.2rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .hero-commercial {
+        padding: 2.25rem 0;
+    }
+    .hero-title {
+        font-size: 1.85rem;
+    }
+    .product-image-wrapper {
+        height: 180px;
+    }
+}
+
+/* ==========================================================================
+   Admin Cybersecurity Attack Simulation & Defence Centre (Enterprise SOC)
+   ========================================================================== */
+.soc-live-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background-color: #ffffff;
+    border: 1px solid var(--slate-200);
+    color: var(--navy-900);
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+}
+
+.soc-pulse-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background-color: var(--emerald-500);
+    box-shadow: 0 0 0 3px rgba(40, 184, 133, 0.22);
+    display: inline-block;
+}
+
+.soc-pulse-dot.paused {
+    background-color: var(--slate-400);
+    box-shadow: none;
+}
+
+.soc-kpi-card {
+    background-color: #ffffff;
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-md);
+    padding: 1.05rem 1.15rem;
+    box-shadow: var(--shadow-xs);
+    height: 100%;
+}
+
+.soc-kpi-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--slate-500);
+    margin-bottom: 0.25rem;
+}
+
+.soc-kpi-value {
+    font-size: 1.75rem;
+    font-weight: 800;
+    line-height: 1.15;
+}
+
+.soc-kpi-sub {
+    font-size: 0.74rem;
+    color: var(--slate-500);
+    margin-top: 0.35rem;
+}
+
+.soc-kpi-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.soc-icon-blue { background-color: var(--blue-50); color: var(--blue-600); }
+.soc-icon-green { background-color: var(--emerald-50); color: var(--emerald-600); }
+.soc-icon-red { background-color: var(--danger-50); color: var(--danger-600); }
+
+.soc-legend-dot {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.86);
+}
+
+.soc-legend-dot::before {
+    content: '';
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.soc-dot-green::before { background-color: #28b885; }
+.soc-dot-red::before { background-color: #ef4444; }
+.soc-dot-orange::before { background-color: #f59e0b; }
+.soc-dot-blue::before { background-color: #3b82f6; }
+
+.soc-module-tab {
+    background-color: #ffffff;
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-sm);
+    padding: 0.6rem 0.75rem;
+    color: var(--navy-900);
+    transition: all 0.16s ease;
+    cursor: pointer;
+}
+
+.soc-module-tab:hover {
+    border-color: var(--blue-500);
+    background-color: var(--blue-50);
+}
+
+.soc-module-tab.active {
+    background-color: var(--navy-800);
+    border-color: var(--navy-800);
+    color: #ffffff;
+    box-shadow: var(--shadow-xs);
+}
+
+.soc-module-num {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    border-radius: 6px;
+    background-color: var(--blue-50);
+    color: var(--blue-600);
+    font-weight: 700;
+    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.soc-module-tab.active .soc-module-num {
+    background-color: var(--emerald-500);
+    color: #ffffff;
+}
+
+.soc-module-cat {
+    font-size: 0.7rem;
+    color: var(--slate-500);
+}
+
+.soc-module-tab.active .soc-module-cat {
+    color: rgba(255, 255, 255, 0.72);
+}
+
+.soc-attack-btn {
+    background-color: #ffffff;
+    border: 1px solid var(--slate-200);
+    border-radius: var(--radius-sm);
+    padding: 0.65rem 0.85rem;
+    transition: all 0.16s ease;
+    cursor: pointer;
+}
+
+.soc-attack-btn:hover {
+    border-color: var(--blue-500);
+    background-color: var(--blue-50);
+}
+
+.soc-attack-btn .soc-attack-check {
+    color: var(--slate-200);
+    font-size: 0.95rem;
+}
+
+.soc-attack-btn.selected {
+    border-color: var(--blue-600);
+    background-color: var(--blue-50);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.14);
+}
+
+.soc-attack-btn.selected .soc-attack-check {
+    color: var(--blue-600);
+}
+
+/* Strict 4-Color Security Verification Indicators */
+.soc-status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.45rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+}
+
+.soc-verdict-banner {
+    padding: 0.9rem 1.1rem;
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+}
+
+.soc-status-green {
+    background-color: #ecfdf5;
+    border-color: #a7f3d0;
+    color: #065f46;
+}
+
+.soc-status-red {
+    background-color: #fef2f2;
+    border-color: #fecaca;
+    color: #991b1b;
+}
+
+.soc-status-orange {
+    background-color: #fffbeb;
+    border-color: #fde68a;
+    color: #92400e;
+}
+
+.soc-status-blue {
+    background-color: #eff6ff;
+    border-color: #bfdbfe;
+    color: #1e40af;
+}
+
+.soc-kv-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    max-height: 225px;
+    overflow-y: auto;
+}
+
+.soc-kv-row {
+    border-bottom: 1px solid var(--slate-200);
+    padding-bottom: 0.35rem;
+}
+
+.soc-kv-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.soc-kv-key {
+    font-size: 0.71rem;
+    font-weight: 600;
+    color: var(--slate-500);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.soc-kv-val {
+    font-size: 0.76rem;
+    color: var(--navy-900);
+    word-break: break-all;
+}
+
+.soc-console {
+    background-color: #0b1c2f;
+    color: #d1fae5;
+    padding: 0.85rem 1rem;
+    font-size: 0.76rem;
+    line-height: 1.55;
+    max-height: 175px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+}

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-9 col-lg-6">
+                <div class="auth-card p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <div class="auth-shield-badge mb-3">
+                            <i class="bi bi-person-check-fill"></i>
+                        </div>
+                        <h1 class="h3 fw-bold text-navy mb-1">Create Account</h1>
+                        <p class="text-muted small mb-0">Register for encrypted shopping with automatic RSA-3072 signing key provisioning</p>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('auth.register') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Full Name</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                <input type="text" class="form-control" id="name" name="name"
+                                       value="{{ name|default('') }}" required placeholder="Enter your full name" minlength="2">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                <input type="email" class="form-control" id="email" name="email"
+                                       value="{{ email|default('') }}" required placeholder="name@example.com">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                <input type="password" class="form-control" id="password" name="password"
+                                       required placeholder="Min 8 chars, upper, lower, digit, special" minlength="8">
+                                <button type="button" class="btn btn-outline-navy px-3" data-toggle-password="password" aria-label="Show password">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <div class="form-text small">
+                                Must be at least 8 characters and include uppercase, lowercase, digit, and special character.
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="confirm_password" class="form-label">Confirm Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-shield-lock"></i></span>
+                                <input type="password" class="form-control" id="confirm_password" name="confirm_password"
+                                       required placeholder="Re-enter your password">
+                                <button type="button" class="btn btn-outline-navy px-3" data-toggle-password="confirm_password" aria-label="Show password">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="p-3 rounded-3 bg-soft-slate border small text-muted mb-4">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-key-fill text-emerald"></i>
+                                <span><strong>Cryptographic Provisioning:</strong> Your password is hashed via PBKDF2-HMAC-SHA256 (260,000 iterations) and a 3072-bit RSA-PSS keypair is registered to your account.</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-emerald w-100 py-2 mb-3">
+                            <i class="bi bi-person-plus me-2"></i>Create Account
+                        </button>
+                    </form>
+
+                    <div class="pt-3 border-top text-center">
+                        <p class="text-muted small mb-0">
+                            Already have an account?
+                            <a href="{{ url_for('auth.login') }}" class="text-primary fw-semibold text-decoration-none">Sign in</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

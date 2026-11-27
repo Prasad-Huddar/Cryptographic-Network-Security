@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="bg-soft-slate border-bottom py-3">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb small mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('products.index') }}" class="text-decoration-none text-muted">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('products.product_list') }}" class="text-decoration-none text-muted">Products</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('products.product_list', category=product.category) }}" class="text-decoration-none text-muted">{{ product.category }}</a></li>
+                <li class="breadcrumb-item active text-navy fw-medium">{{ product.name }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row g-5 align-items-start">
+        <!-- Left: Large Product Image -->
+        <div class="col-lg-5">
+            <div class="surface-card p-4 text-center" style="background-color: var(--slate-50);">
+                <img src="{{ product.image_url or url_for('static', filename='images/product-placeholder.svg') }}"
+                     class="img-fluid product-detail-img rounded-3"
+                     alt="{{ product.name }}"
+                     style="max-height: 390px; object-fit: contain;">
+            </div>
+        </div>
+
+        <!-- Right: Product Info, Quantity & Purchase -->
+        <div class="col-lg-7">
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                <a href="{{ url_for('products.product_list', category=product.category) }}" class="badge badge-soft-blue text-decoration-none">
+                    {{ product.category }}
+                </a>
+                {% if product.in_stock %}
+                <span class="badge badge-soft-emerald">
+                    <i class="bi bi-check-circle-fill me-1"></i>In Stock ({{ product.stock }} available)
+                </span>
+                {% else %}
+                <span class="badge bg-danger text-white">
+                    <i class="bi bi-x-circle-fill me-1"></i>Out of Stock
+                </span>
+                {% endif %}
+            </div>
+
+            <h1 class="h2 fw-bold text-navy mb-2">{{ product.name }}</h1>
+
+            <div class="d-flex align-items-baseline gap-3 my-3 pb-3 border-bottom">
+                <span class="h2 fw-bold text-navy mb-0">{{ product.formatted_price }}</span>
+                <span class="text-muted small"><i class="bi bi-shield-check text-emerald me-1"></i>Authoritative Server-Verified Price</span>
+            </div>
+
+            <p class="text-muted mb-4" style="font-size: 0.98rem; line-height: 1.7;">
+                {{ product.description }}
+            </p>
+
+            {% if current_user.is_authenticated %}
+                {% if product.in_stock %}
+                <form method="POST" action="{{ url_for('cart.add_item', product_id=product.id) }}" class="mb-4">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="next" value="{{ request.url }}">
+                    <label for="quantity" class="form-label">Quantity</label>
+                    <div class="d-flex flex-wrap align-items-center gap-3">
+                        <div class="input-group qty-stepper-group" style="width: 145px;">
+                            <button type="button" class="btn btn-outline-navy px-3" data-qty-step="-1" aria-label="Decrease quantity">&minus;</button>
+                            <input type="number" class="form-control text-center fw-semibold" id="quantity" name="quantity" value="1" min="1" max="{{ product.stock }}">
+                            <button type="button" class="btn btn-outline-navy px-3" data-qty-step="1" aria-label="Increase quantity">&plus;</button>
+                        </div>
+                        <button type="submit" class="btn btn-emerald px-4 py-2">
+                            <i class="bi bi-cart-plus me-2"></i>Add to Cart
+                        </button>
+                    </div>
+                </form>
+                {% endif %}
+            {% else %}
+                <div class="surface-card bg-soft-slate p-3 mb-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
+                    <div class="small text-muted">
+                        <i class="bi bi-lock-fill text-navy me-1"></i>Sign in to your customer account to add items to your cart and place encrypted orders.
+                    </div>
+                    <a href="{{ url_for('auth.login', next=request.path) }}" class="btn btn-emerald btn-sm px-3">
+                        <i class="bi bi-box-arrow-in-right me-1"></i>Login to Purchase
+                    </a>
+                </div>
+            {% endif %}
+
+            <!-- Security & Shopping Guarantees -->
+            <div class="row g-3 pt-3 border-top">
+                <div class="col-sm-4">
+                    <div class="d-flex align-items-center gap-2 small text-muted">
+                        <i class="bi bi-shield-lock-fill text-emerald fs-5"></i>
+                        <span>AES-256-GCM Encrypted Checkout</span>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="d-flex align-items-center gap-2 small text-muted">
+                        <i class="bi bi-patch-check-fill text-primary fs-5"></i>
+                        <span>RSA-PSS Signed Order Receipt</span>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="d-flex align-items-center gap-2 small text-muted">
+                        <i class="bi bi-truck text-navy fs-5"></i>
+                        <span>Free Verified Delivery</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    {% if related_products %}
+    <div class="mt-5 pt-4 border-top">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="h5 fw-bold text-navy mb-0">Related Products in {{ product.category }}</h3>
+            <a href="{{ url_for('products.product_list', category=product.category) }}" class="btn btn-outline-navy btn-sm">
+                View All <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+        <div class="row g-4">
+            {% for rp in related_products %}
+            <div class="col-sm-6 col-md-3">
+                <div class="product-card">
+                    <a href="{{ url_for('products.product_detail', product_id=rp.id) }}" class="text-decoration-none">
+                        <div class="product-image-wrapper">
+                            <img src="{{ rp.image_url or url_for('static', filename='images/product-placeholder.svg') }}" class="product-image" alt="{{ rp.name }}">
+                            <span class="category-badge">{{ rp.category }}</span>
+                        </div>
+                    </a>
+                    <div class="product-card-body">
+                        <a href="{{ url_for('products.product_detail', product_id=rp.id) }}" class="product-card-title">{{ rp.name }}</a>
+                        <div class="product-card-price mt-1">{{ rp.formatted_price }}</div>
+                        <div class="product-card-actions">
+                            <a href="{{ url_for('products.product_detail', product_id=rp.id) }}" class="btn-add-cart">
+                                View Product
+                            </a>
+                            <a href="{{ url_for('products.product_detail', product_id=rp.id) }}" class="btn-view-icon">
+                                <i class="bi bi-arrow-up-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

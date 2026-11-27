@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="bg-soft-slate border-bottom py-4">
+    <div class="container-fluid px-lg-5">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <span class="badge badge-soft-emerald mb-1">
+                    <i class="bi bi-shield-lock-fill me-1"></i>Enterprise Security &amp; Store Administration
+                </span>
+                <h1 class="h3 fw-bold text-navy mb-0">Dashboard</h1>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{{ url_for('admin.security_dashboard') }}" class="btn btn-outline-navy btn-sm px-3">
+                    <i class="bi bi-shield-shaded me-1"></i>Security Dashboard
+                </a>
+                <a href="{{ url_for('admin.add_product') }}" class="btn btn-emerald btn-sm px-3">
+                    <i class="bi bi-plus-lg me-1"></i>Add Product
+                </a>
+                <a href="{{ url_for('admin.crypto_demo') }}" class="btn btn-navy btn-sm px-3">
+                    <i class="bi bi-cpu me-1"></i>Launch Crypto Lab
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid px-lg-5 py-4">
+    <div class="row g-4">
+        <!-- Enterprise Admin Sidebar -->
+        <div class="col-lg-2">
+            <div class="admin-sidebar sticky-lg-top" style="top: 88px;">
+                <div class="admin-sidebar-title">Store Management</div>
+                <nav class="nav flex-column mb-3">
+                    <a class="nav-link active" href="{{ url_for('admin.dashboard') }}">
+                        <i class="bi bi-grid-1x2"></i><span>Dashboard</span>
+                    </a>
+                    <a class="nav-link" href="{{ url_for('admin.manage_products') }}">
+                        <i class="bi bi-box-seam"></i><span>Products</span>
+                    </a>
+                    <a class="nav-link" href="{{ url_for('admin.manage_orders') }}">
+                        <i class="bi bi-bag-check"></i><span>Orders</span>
+                    </a>
+                    <a class="nav-link" href="{{ url_for('admin.manage_users') }}">
+                        <i class="bi bi-people"></i><span>Users</span>
+                    </a>
+                </nav>
+                <div class="admin-sidebar-title">Security &amp; Audit</div>
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="{{ url_for('admin.security_dashboard') }}">
+                        <i class="bi bi-shield-shaded"></i><span>Security Dashboard</span>
+                    </a>
+                    <a class="nav-link" href="{{ url_for('admin.security_logs') }}">
+                        <i class="bi bi-shield-exclamation"></i><span>Security Logs</span>
+                    </a>
+                    <a class="nav-link" href="{{ url_for('admin.crypto_demo') }}">
+                        <i class="bi bi-cpu"></i><span>Crypto Lab</span>
+                    </a>
+                    {% if current_user.is_authenticated and current_user.is_admin %}
+                    <a class="nav-link" href="{{ url_for('security_lab.lab_dashboard') }}">
+                        <i class="bi bi-shield-fill-exclamation"></i><span>Cybersecurity Attack &amp; Defence Lab</span>
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Enterprise Dashboard Content -->
+        <div class="col-lg-10">
+            <!-- 4 KPI Overview Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-sm-6 col-xl-3">
+                    <div class="admin-stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-muted small fw-semibold text-uppercase mb-1">Registered Users</div>
+                                <div class="h2 fw-bold text-navy mb-0">{{ total_users }}</div>
+                                <div class="small text-muted mt-1"><i class="bi bi-key text-emerald me-1"></i>PBKDF2 &amp; RSA-3072</div>
+                            </div>
+                            <div class="admin-stat-icon" style="background-color: var(--blue-50); color: var(--blue-600);">
+                                <i class="bi bi-people-fill"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-xl-3">
+                    <div class="admin-stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-muted small fw-semibold text-uppercase mb-1">Catalogue Products</div>
+                                <div class="h2 fw-bold text-navy mb-0">{{ total_products }}</div>
+                                <div class="small text-muted mt-1"><i class="bi bi-check2-circle text-emerald me-1"></i>Authoritative DB Pricing</div>
+                            </div>
+                            <div class="admin-stat-icon" style="background-color: var(--emerald-50); color: var(--emerald-600);">
+                                <i class="bi bi-box-seam-fill"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-xl-3">
+                    <div class="admin-stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-muted small fw-semibold text-uppercase mb-1">Total Orders</div>
+                                <div class="h2 fw-bold text-navy mb-0">{{ total_orders }}</div>
+                                <div class="small text-muted mt-1"><i class="bi bi-bag-check text-primary me-1"></i>Verified Checkouts</div>
+                            </div>
+                            <div class="admin-stat-icon" style="background-color: var(--blue-50); color: var(--blue-600);">
+                                <i class="bi bi-receipt"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-xl-3">
+                    <div class="admin-stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-muted small fw-semibold text-uppercase mb-1">Crypto Transactions</div>
+                                <div class="h2 fw-bold text-navy mb-0">{{ total_transactions|default(total_orders) }}</div>
+                                <div class="small text-muted mt-1"><i class="bi bi-shield-lock text-emerald me-1"></i>AES-GCM + RSA-PSS</div>
+                            </div>
+                            <div class="admin-stat-icon" style="background-color: var(--emerald-50); color: var(--emerald-600);">
+                                <i class="bi bi-shield-fill-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Security Telemetry Strip -->
+            {% if security_metrics is defined %}
+            <div class="surface-card p-3 px-4 mb-4">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge badge-soft-emerald"><i class="bi bi-shield-shaded me-1"></i>Security Telemetry</span>
+                        <span class="small text-muted">Successful Tx: <strong class="text-emerald">{{ security_metrics.successful_transactions }}</strong></span>
+                        <span class="text-muted">&bull;</span>
+                        <span class="small text-muted">Rejected Tx: <strong class="text-danger">{{ security_metrics.rejected_transactions }}</strong></span>
+                        <span class="text-muted">&bull;</span>
+                        <span class="small text-muted">Tampering Blocked: <strong class="text-navy">{{ security_metrics.tampering_attempts }}</strong></span>
+                        <span class="text-muted">&bull;</span>
+                        <span class="small text-muted">Replay Blocked: <strong class="text-navy">{{ security_metrics.replay_attempts }}</strong></span>
+                        <span class="text-muted">&bull;</span>
+                        <span class="small text-muted">Unauthorized Access Blocked: <strong class="text-navy">{{ security_metrics.unauthorized_attempts }}</strong></span>
+                        <span class="text-muted">&bull;</span>
+                        <span class="small text-muted">RSA-PSS Verified: <strong class="text-emerald">{{ security_metrics.verified_signatures }}</strong></span>
+                    </div>
+                    <a href="{{ url_for('admin.security_dashboard') }}" class="btn btn-sm btn-outline-navy py-1 px-2" style="font-size: 0.78rem;">
+                        Full Security Dashboard <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="row g-4 mb-4">
+                <!-- Recent Orders Table -->
+                <div class="col-xl-7">
+                    <div class="surface-card h-100 overflow-hidden">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="h6 fw-bold text-navy mb-0"><i class="bi bi-bag-check me-2 text-primary"></i>Recent Orders</h5>
+                            <a href="{{ url_for('admin.manage_orders') }}" class="btn btn-sm btn-outline-navy py-1 px-2" style="font-size: 0.78rem;">View All</a>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0 align-middle">
+                                <thead>
+                                    <tr>
+                                        <th class="ps-3">Order #</th>
+                                        <th>Customer</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                        <th class="text-end pe-3">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in recent_orders %}
+                                    <tr>
+                                        <td class="ps-3 fw-bold text-navy">#{{ order.order_number }}</td>
+                                        <td>
+                                            <div class="fw-medium text-navy small">{{ order.user.name }}</div>
+                                            <div class="text-muted" style="font-size: 0.75rem;">{{ order.user.email }}</div>
+                                        </td>
+                                        <td class="fw-bold text-navy">{{ order.formatted_total }}</td>
+                                        <td><span class="badge bg-{{ order.status_badge }}">{{ order.status|capitalize }}</span></td>
+                                        <td class="text-end pe-3 small text-muted text-nowrap" title="UTC Audit: {{ order.created_at|format_utc_iso }}">{{ order.created_at|format_ist }}</td>
+                                    </tr>
+                                    {% else %}
+                                    <tr><td colspan="5" class="text-center text-muted py-4">No orders placed yet</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Security Events -->
+                <div class="col-xl-5">
+                    <div class="surface-card h-100 overflow-hidden">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="h6 fw-bold text-navy mb-0"><i class="bi bi-shield-exclamation me-2 text-emerald"></i>Recent Security Events</h5>
+                            <a href="{{ url_for('admin.security_logs') }}" class="btn btn-sm btn-outline-navy py-1 px-2" style="font-size: 0.78rem;">Full Audit Trail</a>
+                        </div>
+                        <div class="list-group list-group-flush">
+                            {% for log in recent_logs %}
+                            <div class="list-group-item px-3 py-3 border-bottom">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="badge bg-{{ log.event_badge }}">{{ log.event_type }}</span>
+                                    <div class="d-flex align-items-center gap-2">
+                                        {% if log.integrity_hmac and log.verify_integrity() %}
+                                        <span class="badge badge-soft-emerald" style="font-size: 0.68rem;">HMAC VALID</span>
+                                        {% endif %}
+                                        <small class="text-muted text-nowrap" style="font-size: 0.75rem;" title="UTC Audit: {{ log.timestamp|format_utc_iso }}">{{ log.timestamp|format_ist }}</small>
+                                    </div>
+                                </div>
+                                <div class="small text-muted text-break">{{ log.description[:85] }}{% if log.description|length > 85 %}...{% endif %}</div>
+                            </div>
+                            {% else %}
+                            <div class="p-4 text-center text-muted small">No security events recorded</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Cryptographic Transactions -->
+            {% if recent_transactions is defined and recent_transactions %}
+            <div class="surface-card overflow-hidden">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="h6 fw-bold text-navy mb-0"><i class="bi bi-file-earmark-lock2 me-2 text-emerald"></i>Recent Cryptographic Transactions</h5>
+                    <span class="badge badge-soft-emerald">AES-256-GCM &bull; RSA-OAEP &bull; RSA-PSS</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead>
+                            <tr>
+                                <th class="ps-3">Transaction UUID</th>
+                                <th>Amount</th>
+                                <th>Cipher Suite</th>
+                                <th>Signature Verification</th>
+                                <th>Replay Nonce</th>
+                                <th class="text-end pe-3">Proof</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tx in recent_transactions %}
+                            <tr>
+                                <td class="ps-3"><code>{{ tx.transaction_id[:18] }}...</code></td>
+                                <td class="fw-bold text-navy">{{ tx.formatted_amount }}</td>
+                                <td><span class="badge badge-soft-blue">{{ tx.encryption_algorithm }}</span></td>
+                                <td><span class="badge badge-soft-emerald"><i class="bi bi-patch-check-fill me-1"></i>{{ tx.verification_status }}</span></td>
+                                <td><code class="small text-muted">{{ (tx.replay_nonce[:14] ~ '...') if tx.replay_nonce else 'N/A' }}</code></td>
+                                <td class="text-end pe-3">
+                                    <a href="{{ url_for('orders.transaction_detail', transaction_id=tx.transaction_id) }}" class="btn btn-sm btn-outline-navy py-1 px-2">
+                                        <i class="bi bi-eye me-1"></i>Inspect
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

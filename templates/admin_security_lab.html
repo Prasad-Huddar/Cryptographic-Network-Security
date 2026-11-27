@@ -1,0 +1,586 @@
+{% extends "base.html" %}
+{% block title %}Cybersecurity Attack &amp; Defence Lab{% endblock %}
+
+{% block content %}
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
+<!-- Enterprise SOC Header Banner -->
+<div class="bg-soft-slate border-bottom py-4">
+    <div class="container-fluid px-lg-5">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                    <span class="badge badge-soft-blue">
+                        <i class="bi bi-shield-lock-fill me-1"></i>Admin Security Operations Centre (SOC)
+                    </span>
+                    <span class="badge badge-soft-emerald">
+                        <i class="bi bi-cpu-fill me-1"></i>Real Backend Cryptographic Verification
+                    </span>
+                    <span class="badge bg-navy text-white">
+                        <i class="bi bi-lock-fill text-emerald me-1"></i>Isolated Sandbox &bull; Private Keys Protected
+                    </span>
+                </div>
+                <h1 class="h3 fw-bold text-navy mb-1">
+                    <i class="bi bi-shield-shaded text-primary me-2"></i>Cybersecurity Attack Simulation &amp; Defence Centre
+                </h1>
+                <p class="text-muted small mb-0">
+                    Controlled backend execution of cryptographic attacks across 8 independent security modules with live detection, mitigation verification, and persistent audit telemetry.
+                </p>
+            </div>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <div class="soc-live-pill" id="socPollingIndicator">
+                    <span class="soc-pulse-dot"></span>
+                    <span class="small fw-semibold">Live Polling: ON</span>
+                </div>
+                <button type="button" class="btn btn-outline-navy btn-sm" id="btnTogglePolling">
+                    <i class="bi bi-pause-circle me-1"></i>Pause Poll
+                </button>
+                <button type="button" class="btn btn-primary btn-sm" id="btnRefreshOverview">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Refresh Telemetry
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid px-lg-5 py-4">
+    <div class="row g-4">
+        <!-- Existing Enterprise Admin Sidebar (Preserved + New Active Menu) -->
+        <div class="col-lg-2">
+            <div class="admin-sidebar sticky-lg-top" style="top: 88px;">
+                <div class="admin-sidebar-title">Store Management</div>
+                <nav class="nav flex-column mb-3">
+                    <a class="nav-link" href="{{ url_for('admin.dashboard') }}">
+                        <i class="bi bi-grid-1x2"></i><span>Dashboard</span>
+                    </a>
+                    <a class="nav-link" href="{{ url_for('admin.manage_products') }}">
+                        <i class="bi bi-box-seam"></i><span>Products</span>
+                    </a>
+                    <a class="nav-link" href="{{ url_for('admin.manage_orders') }}">
+                        <i class="bi bi-bag-check"></i><span>Orders</span>
+                    </a>
+                    <a class="nav-link" href="{{ url_for('admin.manage_users') }}">
+                        <i class="bi bi-people"></i><span>Users</span>
+                    </a>
+                </nav>
+                <div class="admin-sidebar-title">Security &amp; Audit</div>
+                <nav class="nav flex-column">
+                    <a class="nav-link" href="{{ url_for('admin.security_dashboard') }}">
+                        <i class="bi bi-shield-shaded"></i><span>Security Dashboard</span>
+                    </a>
+                    <a class="nav-link" href="{{ url_for('admin.security_logs') }}">
+                        <i class="bi bi-shield-exclamation"></i><span>Security Logs</span>
+                    </a>
+                    <a class="nav-link" href="{{ url_for('admin.crypto_demo') }}">
+                        <i class="bi bi-cpu"></i><span>Crypto Lab</span>
+                    </a>
+                    <a class="nav-link active" href="{{ url_for('security_lab.lab_dashboard') }}">
+                        <i class="bi bi-shield-fill-exclamation"></i><span>Cybersecurity Attack &amp; Defence Lab</span>
+                    </a>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main SOC Content Area -->
+        <div class="col-lg-10">
+
+            <!-- ============================================================
+                 SECTION A: LIVE SECURITY MONITORING DASHBOARD (7 KPI METRICS)
+                 ============================================================ -->
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h5 fw-bold text-navy mb-0">
+                        <i class="bi bi-activity text-primary me-2"></i>Live Security Monitoring Dashboard
+                    </h2>
+                    <span class="small text-muted" id="lastSyncTimestamp">Synced: {{ initial_overview.server_time_ist }}</span>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-6 col-md-4 col-xl-3">
+                        <div class="soc-kpi-card">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <div class="soc-kpi-label">Total Attacks Simulated</div>
+                                    <div class="soc-kpi-value text-navy" id="kpiTotalSimulated">{{ initial_overview.metrics.total_attacks_simulated }}</div>
+                                </div>
+                                <span class="soc-kpi-icon soc-icon-blue"><i class="bi bi-bullseye"></i></span>
+                            </div>
+                            <div class="soc-kpi-sub">Persisted backend simulations</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-3">
+                        <div class="soc-kpi-card">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <div class="soc-kpi-label">Attacks Detected</div>
+                                    <div class="soc-kpi-value text-primary" id="kpiDetected">{{ initial_overview.metrics.attacks_detected }}</div>
+                                </div>
+                                <span class="soc-kpi-icon soc-icon-blue"><i class="bi bi-radar"></i></span>
+                            </div>
+                            <div class="soc-kpi-sub">Cryptographic anomalies flagged</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-3">
+                        <div class="soc-kpi-card">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <div class="soc-kpi-label">Attacks Blocked</div>
+                                    <div class="soc-kpi-value text-emerald" id="kpiBlocked">{{ initial_overview.metrics.attacks_blocked }}</div>
+                                </div>
+                                <span class="soc-kpi-icon soc-icon-green"><i class="bi bi-shield-fill-check"></i></span>
+                            </div>
+                            <div class="soc-kpi-sub">Verified backend rejections</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-xl-3">
+                        <div class="soc-kpi-card">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <div class="soc-kpi-label">Failed Defence Attempts</div>
+                                    <div class="soc-kpi-value text-danger" id="kpiFailedDefence">{{ initial_overview.metrics.failed_defence_attempts }}</div>
+                                </div>
+                                <span class="soc-kpi-icon soc-icon-red"><i class="bi bi-exclamation-octagon-fill"></i></span>
+                            </div>
+                            <div class="soc-kpi-sub">Unmitigated / policy-disabled tests</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="soc-kpi-card">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="soc-kpi-label">Total Security Tests Executed</div>
+                                    <div class="h4 fw-bold text-navy mb-0" id="kpiTotalTests">{{ initial_overview.metrics.total_security_tests_executed }}</div>
+                                </div>
+                                <span class="badge badge-soft-blue">8 Modules Ready</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="soc-kpi-card">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <div class="soc-kpi-label mb-0">Detection Rate</div>
+                                <span class="fw-bold text-primary" id="kpiDetectionRate">{{ initial_overview.metrics.detection_rate }}%</span>
+                            </div>
+                            <div class="progress" style="height: 7px;">
+                                <div class="progress-bar bg-primary" id="barDetectionRate" role="progressbar" style="width: {{ initial_overview.metrics.detection_rate }}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="soc-kpi-card">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <div class="soc-kpi-label mb-0">Mitigation Rate</div>
+                                <span class="fw-bold text-emerald" id="kpiMitigationRate">{{ initial_overview.metrics.mitigation_rate }}%</span>
+                            </div>
+                            <div class="progress" style="height: 7px;">
+                                <div class="progress-bar bg-success" id="barMitigationRate" role="progressbar" style="width: {{ initial_overview.metrics.mitigation_rate }}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 SECTION B: EIGHT INDEPENDENT CRYPTOGRAPHIC SECURITY MODULES
+                 ============================================================ -->
+            <div class="surface-card mb-4 overflow-hidden">
+                <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2 bg-navy text-white">
+                    <div>
+                        <h2 class="h6 fw-bold text-white mb-0">
+                            <i class="bi bi-terminal-fill text-emerald me-2"></i>Interactive Attack Simulation &amp; Defence Workbench (8 Modules)
+                        </h2>
+                        <small style="color: rgba(255,255,255,0.72);">Select a cryptographic module, choose an attack vector, and launch real backend execution.</small>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 small">
+                        <span class="soc-legend-dot soc-dot-green">Detected &amp; Blocked</span>
+                        <span class="soc-legend-dot soc-dot-red">Defence Failed</span>
+                        <span class="soc-legend-dot soc-dot-orange">Executing</span>
+                        <span class="soc-legend-dot soc-dot-blue">Info / Ready</span>
+                    </div>
+                </div>
+
+                <!-- 8-Module Navigation Pills -->
+                <div class="p-3 bg-soft-slate border-bottom">
+                    <div class="row g-2" id="moduleSelectorGrid">
+                        {% for mod in modules %}
+                        <div class="col-6 col-md-4 col-xl-3">
+                            <button type="button"
+                                    class="soc-module-tab w-100 text-start {% if loop.first %}active{% endif %}"
+                                    data-module-key="{{ mod.module_key }}">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="soc-module-num">{{ mod.number }}</span>
+                                    <div class="overflow-hidden">
+                                        <div class="fw-semibold text-truncate small">{{ mod.short_name }}</div>
+                                        <div class="soc-module-cat text-truncate">{{ mod.category }}</div>
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Active Module Workspace -->
+                <div class="p-4" id="activeModuleWorkspace">
+                    {% for mod in modules %}
+                    <div class="soc-module-pane {% if not loop.first %}d-none{% endif %}" data-pane-key="{{ mod.module_key }}">
+                        <!-- Module Header & Algorithm Info -->
+                        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 pb-3 mb-4 border-bottom">
+                            <div>
+                                <span class="badge badge-soft-blue mb-1">Module {{ mod.number }} &bull; {{ mod.category }}</span>
+                                <h3 class="h5 fw-bold text-navy mb-1">
+                                    <i class="bi {{ mod.icon }} text-primary me-2"></i>{{ mod.name }}
+                                </h3>
+                                <p class="text-muted small mb-2">{{ mod.description }}</p>
+                                <div class="small">
+                                    <span class="text-muted fw-semibold">Algorithm Suite:</span>
+                                    <code class="text-navy ms-1">{{ mod.algorithm }}</code>
+                                </div>
+                            </div>
+                            <div class="soc-status-badge soc-status-blue" id="statusBadge-{{ mod.module_key }}">
+                                <i class="bi bi-info-circle-fill me-1"></i>
+                                <span>READY &mdash; SELECT ATTACK</span>
+                            </div>
+                        </div>
+
+                        <div class="row g-4">
+                            <!-- Left Column: Attack Selection & Module-Specific Controls -->
+                            <div class="col-lg-5">
+                                <div class="p-3 rounded-3 bg-soft-slate border h-100 d-flex flex-column">
+                                    <div class="fw-bold text-navy small text-uppercase mb-2">
+                                        <i class="bi bi-crosshair me-1 text-primary"></i>Available Attack Scenarios
+                                    </div>
+
+                                    <div class="d-flex flex-column gap-2 mb-3">
+                                        {% for atk in mod.attacks %}
+                                        <button type="button"
+                                                class="soc-attack-btn text-start {% if loop.first %}selected{% endif %}"
+                                                data-module-key="{{ mod.module_key }}"
+                                                data-attack-key="{{ atk.attack_key }}">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <span class="fw-semibold small text-navy">{{ loop.index }}. {{ atk.name }}</span>
+                                                <i class="bi bi-check-circle-fill soc-attack-check"></i>
+                                            </div>
+                                            <div class="text-muted mt-1" style="font-size: 0.78rem;">{{ atk.description }}</div>
+                                        </button>
+                                        {% endfor %}
+                                    </div>
+
+                                    <!-- Module 4 Extra Controls: Synthetic Weak Password Profile & Policy Toggle -->
+                                    {% if mod.module_key == 'pbkdf2' %}
+                                    <div class="p-3 bg-white rounded-3 border mb-3" id="mod4Controls">
+                                        <div class="fw-semibold text-navy small mb-2">
+                                            <i class="bi bi-sliders me-1 text-primary"></i>Weak Password Test Options (Isolated Synthetic Data)
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="form-label small mb-1" for="mod4WeakProfile">Synthetic Weak Credential Profile</label>
+                                            <select class="form-select form-select-sm" id="mod4WeakProfile">
+                                                <option value="common_word">Common Dictionary Word (11 chars, lowercase + digits)</option>
+                                                <option value="weak_digits">Numeric-Only Sequence (8 digits)</option>
+                                                <option value="short_lower">Short Alphanumeric (6 chars)</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="mod4EnforcePolicy" checked>
+                                            <label class="form-check-label small" for="mod4EnforcePolicy">
+                                                Enforce Strong Password Complexity Policy (Uncheck to simulate policy bypass &amp; verify failed-defence detection)
+                                            </label>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Module 6 Interactive Ciphertext Tampering Controls -->
+                                    {% if mod.module_key == 'ciphertext_tampering' %}
+                                    <div class="p-3 bg-white rounded-3 border mb-3">
+                                        <div class="fw-semibold text-navy small mb-2">
+                                            <i class="bi bi-1-circle-fill text-primary me-1"></i>Step 1: Generate Encrypted Test Transaction
+                                        </div>
+                                        <div class="row g-2 mb-2">
+                                            <div class="col-7">
+                                                <input type="text" class="form-control form-control-sm" id="mod6ItemName" value="Wireless Bluetooth Headphones (Lab)" placeholder="Synthetic item name">
+                                            </div>
+                                            <div class="col-5">
+                                                <input type="number" class="form-control form-control-sm" id="mod6Amount" value="2999" min="1" step="1" placeholder="Amount (INR)">
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-outline-primary btn-sm w-100 mb-3" id="btnMod6Generate">
+                                            <i class="bi bi-lock-fill me-1"></i>Generate &amp; Intercept Encrypted Transaction
+                                        </button>
+
+                                        <div class="fw-semibold text-navy small mb-2">
+                                            <i class="bi bi-2-circle-fill text-danger me-1"></i>Step 2: Modify Selected Ciphertext Bytes
+                                        </div>
+                                        <input type="hidden" id="mod6LabTxId" value="">
+                                        <div class="mb-2">
+                                            <label class="form-label small mb-1">Intercepted Ciphertext (Base64)</label>
+                                            <textarea class="form-control form-control-sm font-monospace" id="mod6CiphertextBox" rows="2" placeholder="Click Generate above or launch directly to auto-generate..."></textarea>
+                                        </div>
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <label class="form-label small mb-1" for="mod6ByteOffset">Byte Offset</label>
+                                                <input type="number" class="form-control form-control-sm" id="mod6ByteOffset" value="0" min="0" max="512">
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="form-label small mb-1" for="mod6XorMask">XOR Mask (Hex)</label>
+                                                <select class="form-select form-select-sm" id="mod6XorMask">
+                                                    <option value="0xFF">0xFF (Invert All Bits)</option>
+                                                    <option value="0x01">0x01 (Single Bit Flip)</option>
+                                                    <option value="0xAA">0xAA (Alternating Bits)</option>
+                                                    <option value="0x5A">0x5A (Pattern Mutation)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Module 7 Interactive Nonce Replay Controls -->
+                                    {% if mod.module_key == 'nonce_replay' %}
+                                    <div class="p-3 bg-white rounded-3 border mb-3">
+                                        <div class="fw-semibold text-navy small mb-2">
+                                            <i class="bi bi-1-circle-fill text-primary me-1"></i>Step 1: Submit Legitimate Transaction &amp; Capture Nonce
+                                        </div>
+                                        <button type="button" class="btn btn-outline-primary btn-sm w-100 mb-2" id="btnMod7SubmitOriginal">
+                                            <i class="bi bi-send-check-fill me-1"></i>Generate &amp; Submit Original Transaction
+                                        </button>
+                                        <input type="hidden" id="mod7LabTxId" value="">
+                                        <div class="small text-muted mb-1">Captured Nonce &amp; Request State:</div>
+                                        <div class="crypto-artifact-box" id="mod7CapturedBox">No captured transaction yet (or click Launch Attack Simulation to auto-run full 7-step flow).</div>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Module 8 Timestamp Offset Controls -->
+                                    {% if mod.module_key == 'expired_timestamp' %}
+                                    <div class="p-3 bg-white rounded-3 border mb-3">
+                                        <div class="fw-semibold text-navy small mb-2">
+                                            <i class="bi bi-clock-history text-primary me-1"></i>Timestamp Attack Parameters
+                                        </div>
+                                        <label class="form-label small mb-1" for="mod8OffsetSeconds">Offset Beyond ±300s Window (seconds)</label>
+                                        <input type="number" class="form-control form-control-sm" id="mod8OffsetSeconds" value="900" min="301" max="86400">
+                                        <div class="form-text" style="font-size: 0.74rem;">Applies to Expired Request Replay (-offset) and Future Timestamp Injection (+offset).</div>
+                                    </div>
+                                    {% endif %}
+
+                                    <div class="mt-auto pt-2">
+                                        <button type="button"
+                                                class="btn btn-navy w-100 py-2 soc-launch-btn"
+                                                data-module-key="{{ mod.module_key }}">
+                                            <i class="bi bi-lightning-charge-fill text-emerald me-2"></i>Launch Attack Simulation
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right Column: Live Execution Status, Evidence, Defence & Logs -->
+                            <div class="col-lg-7">
+                                <div class="soc-result-panel" id="resultPanel-{{ mod.module_key }}">
+                                    <!-- Verification Status Strip -->
+                                    <div class="soc-verdict-banner soc-status-blue mb-3" id="verdictBanner-{{ mod.module_key }}">
+                                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                            <div class="fw-bold small">
+                                                <i class="bi bi-info-circle-fill me-2"></i>
+                                                <span id="verdictTitle-{{ mod.module_key }}">Awaiting Attack Simulation Execution</span>
+                                            </div>
+                                            <span class="badge bg-white text-navy font-monospace" id="verdictMeta-{{ mod.module_key }}">Idle</span>
+                                        </div>
+                                        <div class="small mt-1 opacity-90" id="verdictSubtitle-{{ mod.module_key }}">
+                                            Select an attack vector on the left and click "Launch Attack Simulation" to execute real backend cryptographic verification.
+                                        </div>
+                                    </div>
+
+                                    <!-- Defence Mechanism & Mitigation Result -->
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-6">
+                                            <div class="p-3 rounded-3 border bg-white h-100">
+                                                <div class="text-muted fw-semibold text-uppercase" style="font-size: 0.7rem;">Defence Mechanism</div>
+                                                <div class="small fw-semibold text-navy mt-1" id="defenceMech-{{ mod.module_key }}">&mdash;</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="p-3 rounded-3 border bg-white h-100">
+                                                <div class="text-muted fw-semibold text-uppercase" style="font-size: 0.7rem;">Mitigation Result</div>
+                                                <div class="small fw-semibold text-navy mt-1" id="mitigationAction-{{ mod.module_key }}">&mdash;</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Detection Evidence & Payload Tabs -->
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-6">
+                                            <div class="p-3 rounded-3 border bg-soft-slate h-100">
+                                                <div class="fw-bold text-navy small mb-2">
+                                                    <i class="bi bi-file-earmark-code text-primary me-1"></i>Attack Payload / Test Input
+                                                </div>
+                                                <div class="soc-kv-list" id="payloadBox-{{ mod.module_key }}">
+                                                    <span class="text-muted small">No simulation executed yet.</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="p-3 rounded-3 border bg-soft-slate h-100">
+                                                <div class="fw-bold text-navy small mb-2">
+                                                    <i class="bi bi-search text-emerald me-1"></i>Detection &amp; Verification Evidence
+                                                </div>
+                                                <div class="soc-kv-list" id="evidenceBox-{{ mod.module_key }}">
+                                                    <span class="text-muted small">Cryptographic verification evidence will appear here.</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Detailed Execution Logs Console -->
+                                    <div class="rounded-3 border overflow-hidden">
+                                        <div class="px-3 py-2 bg-navy text-white d-flex justify-content-between align-items-center">
+                                            <span class="small fw-semibold"><i class="bi bi-terminal me-2 text-emerald"></i>Backend Execution Log</span>
+                                            <span class="small font-monospace" style="color: rgba(255,255,255,0.68);" id="logEventUid-{{ mod.module_key }}">Event ID: &mdash;</span>
+                                        </div>
+                                        <pre class="soc-console mb-0" id="execLog-{{ mod.module_key }}">Ready. All operations execute on isolated backend test data using SecureShop's real cryptographic engine.</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 SECTION C: SECURITY ANALYTICS (CHART.JS) & LIVE THREAT ACTIVITY
+                 ============================================================ -->
+            <div class="row g-4 mb-4">
+                <div class="col-xl-6">
+                    <div class="surface-card h-100 overflow-hidden">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h3 class="h6 fw-bold text-navy mb-0"><i class="bi bi-bar-chart-fill text-primary me-2"></i>Attacks by Cryptographic Module</h3>
+                            <span class="badge badge-soft-blue">Live DB Data</span>
+                        </div>
+                        <div class="p-3" style="height: 270px;">
+                            <canvas id="chartByModule"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-6">
+                    <div class="surface-card h-100 overflow-hidden">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h3 class="h6 fw-bold text-navy mb-0"><i class="bi bi-graph-up text-emerald me-2"></i>Security Activity Over Time</h3>
+                            <span class="badge badge-soft-emerald">Simulated vs Blocked vs Failed</span>
+                        </div>
+                        <div class="p-3" style="height: 270px;">
+                            <canvas id="chartOverTime"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-4">
+                    <div class="surface-card h-100 overflow-hidden">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h3 class="h6 fw-bold text-navy mb-0"><i class="bi bi-pie-chart-fill text-primary me-2"></i>Attacks by Category</h3>
+                        </div>
+                        <div class="p-3" style="height: 255px;">
+                            <canvas id="chartByCategory"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-4">
+                    <div class="surface-card h-100 overflow-hidden">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h3 class="h6 fw-bold text-navy mb-0"><i class="bi bi-shield-check text-emerald me-2"></i>Successful vs Failed Mitigations</h3>
+                        </div>
+                        <div class="p-3" style="height: 255px;">
+                            <canvas id="chartMitigations"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-4">
+                    <div class="surface-card h-100 overflow-hidden d-flex flex-column">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h3 class="h6 fw-bold text-navy mb-0"><i class="bi bi-lightning-fill text-warning me-2"></i>Live Threat Activity</h3>
+                            <span class="badge badge-soft-blue" id="threatFeedCount">0 Recent</span>
+                        </div>
+                        <div class="list-group list-group-flush overflow-auto" id="liveThreatActivityList" style="max-height: 255px;">
+                            <div class="p-4 text-center text-muted small">Launch any attack simulation to populate real-time threat telemetry.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================
+                 SECTION D: PERSISTENT SECURITY EVENT LOGS TABLE
+                 ============================================================ -->
+            <div class="surface-card overflow-hidden">
+                <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    <div>
+                        <h3 class="h6 fw-bold text-navy mb-0">
+                            <i class="bi bi-journal-code text-primary me-2"></i>Security Event Logs (Persisted &amp; HMAC-SHA256 Verified)
+                        </h3>
+                        <small class="text-muted">Every simulation is persisted in SQLite and cross-recorded to Admin Security Logs.</small>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <select class="form-select form-select-sm" id="filterLogModule" style="width: 190px;">
+                            <option value="">All Security Modules</option>
+                            {% for mod in modules %}
+                            <option value="{{ mod.module_key }}">{{ mod.number }}. {{ mod.short_name }}</option>
+                            {% endfor %}
+                        </select>
+                        <select class="form-select form-select-sm" id="filterLogResult" style="width: 160px;">
+                            <option value="">All Final Results</option>
+                            <option value="MITIGATED">Mitigated (Blocked)</option>
+                            <option value="DEFENCE_FAILED">Defence Failed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead>
+                            <tr>
+                                <th class="ps-3">Event ID</th>
+                                <th>Attack Type</th>
+                                <th>Security Module</th>
+                                <th>Attack Description</th>
+                                <th>Execution Timestamp (IST)</th>
+                                <th>Detection Result</th>
+                                <th>Mitigation Action</th>
+                                <th class="pe-3">Final Result</th>
+                            </tr>
+                        </thead>
+                        <tbody id="securityEventLogsBody">
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-4">
+                                    No attack simulations recorded yet. Select a module above and click "Launch Attack Simulation".
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Event Detail Inspection Modal -->
+<div class="modal fade" id="eventDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-navy text-white">
+                <h5 class="modal-title h6 fw-bold text-white mb-0">
+                    <i class="bi bi-shield-shaded text-emerald me-2"></i>Simulation Evidence Inspector &mdash; <span id="modalEventId"></span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body bg-soft-slate">
+                <div id="modalEventContent" class="small"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+    window.__INITIAL_SOC_OVERVIEW__ = {{ initial_overview | tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/security_lab.js') }}"></script>
+{% endblock %}

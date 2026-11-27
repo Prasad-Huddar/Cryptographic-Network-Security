@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Order {{ order.order_number }}{% endblock %}
+
+{% block content %}
+<div class="bg-soft-slate border-bottom py-4">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb small mb-1">
+                        <li class="breadcrumb-item"><a href="{{ url_for('orders.order_history') }}" class="text-decoration-none text-muted">My Orders</a></li>
+                        <li class="breadcrumb-item active text-navy fw-medium">Order #{{ order.order_number }}</li>
+                    </ol>
+                </nav>
+                <h1 class="h3 fw-bold text-navy mb-0">Order #{{ order.order_number }}</h1>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-{{ order.status_badge }} fs-6 px-3 py-2">{{ order.status|capitalize }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row g-4 align-items-start">
+        <div class="col-lg-8">
+            <div class="surface-card overflow-hidden">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="h6 fw-bold text-navy mb-0"><i class="bi bi-box-seam me-2"></i>Purchased Items</h5>
+                    <span class="text-muted small">{{ order.items|length }} item(s)</span>
+                </div>
+                <div class="table-responsive">
+                    <table class="table mb-0 align-middle">
+                        <thead>
+                            <tr>
+                                <th class="ps-4">Product</th>
+                                <th>Unit Price</th>
+                                <th>Quantity</th>
+                                <th class="text-end pe-4">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items %}
+                            <tr>
+                                <td class="ps-4 fw-semibold text-navy">{{ item.product_name }}</td>
+                                <td>₹{{ "%.2f"|format(item.price) }}</td>
+                                <td><span class="badge bg-soft-slate text-navy border">Qty: {{ item.quantity }}</span></td>
+                                <td class="text-end pe-4 fw-bold text-navy">{{ item.formatted_subtotal }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="bg-soft-slate">
+                            <tr>
+                                <td colspan="3" class="text-end pe-3 fw-bold text-navy">Authoritative Order Total:</td>
+                                <td class="text-end pe-4 fw-bold text-emerald fs-5">{{ order.formatted_total }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Order Shipping & Metadata Card -->
+            <div class="surface-card p-4 mb-4">
+                <h6 class="fw-bold text-navy mb-3"><i class="bi bi-geo-alt me-2 text-primary"></i>Shipping &amp; Order Info</h6>
+                <div class="small d-flex flex-column gap-2 text-muted">
+                    <div class="d-flex justify-content-between">
+                        <span>Order Date:</span>
+                        <strong class="text-navy">{{ order.created_at.strftime('%d %b %Y, %H:%M') }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Payment Protocol:</span>
+                        <strong class="text-navy">{{ order.payment_method|replace('_', ' ')|title }}</strong>
+                    </div>
+                    <div class="pt-2 border-top">
+                        <span class="d-block mb-1">Delivery Address:</span>
+                        <div class="p-2 rounded bg-soft-slate text-navy fw-medium">{{ order.shipping_address }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cryptographic Transaction Verification Summary Card -->
+            {% if order.transaction %}
+            <div class="order-summary-card">
+                <div class="order-summary-header">
+                    <i class="bi bi-shield-fill-check text-emerald"></i>
+                    <span>Cryptographic Verification</span>
+                </div>
+                <div class="order-summary-body small">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">Transaction ID</span>
+                        <code class="text-navy">{{ order.transaction.transaction_id[:14] }}...</code>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">Verified Amount</span>
+                        <strong class="text-navy">{{ order.transaction.formatted_amount }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">Cipher Suite</span>
+                        <span class="badge badge-soft-blue">AES-256-GCM + RSA-OAEP</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted">Signature</span>
+                        <span class="badge badge-soft-emerald">{{ order.transaction.verification_status }} (RSA-PSS)</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted">Record Status</span>
+                        <span class="badge bg-success">{{ order.transaction.status|upper }}</span>
+                    </div>
+                    <a href="{{ url_for('orders.transaction_detail', transaction_id=order.transaction.transaction_id) }}"
+                       class="btn btn-emerald btn-sm w-100 py-2">
+                        <i class="bi bi-file-earmark-lock2 me-1"></i>View Full Cryptographic Proof
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

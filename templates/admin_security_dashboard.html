@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+{% block title %}Security Dashboard{% endblock %}
+
+{% block content %}
+<div class="bg-soft-slate border-bottom py-4">
+    <div class="container-fluid px-lg-5">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <span class="badge badge-soft-emerald mb-1">
+                    <i class="bi bi-shield-fill-check me-1"></i>Real-Time Cryptographic &amp; Threat Telemetry
+                </span>
+                <h1 class="h3 fw-bold text-navy mb-0">Security Dashboard</h1>
+                <p class="text-muted small mb-0 mt-1">
+                    Live database metrics for hybrid cryptographic transactions, RSA-PSS signature verifications, replay blocks, and intrusion attempts.
+                </p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="{{ url_for('admin.crypto_demo') }}" class="btn btn-emerald btn-sm px-3">
+                    <i class="bi bi-cpu me-1"></i>Open Crypto Lab
+                </a>
+                <a href="{{ url_for('admin.security_logs') }}" class="btn btn-outline-navy btn-sm px-3">
+                    <i class="bi bi-list-check me-1"></i>All Security Logs
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid px-lg-5 py-4">
+    <div class="row g-4">
+        <!-- Admin Sidebar -->
+        <div class="col-lg-2">
+            <div class="admin-sidebar sticky-lg-top" style="top: 88px;">
+                <div class="admin-sidebar-title">Store Management</div>
+                <nav class="nav flex-column mb-3">
+                    <a class="nav-link" href="{{ url_for('admin.dashboard') }}"><i class="bi bi-grid-1x2"></i><span>Dashboard</span></a>
+                    <a class="nav-link" href="{{ url_for('admin.manage_products') }}"><i class="bi bi-box-seam"></i><span>Products</span></a>
+                    <a class="nav-link" href="{{ url_for('admin.manage_orders') }}"><i class="bi bi-bag-check"></i><span>Orders</span></a>
+                    <a class="nav-link" href="{{ url_for('admin.manage_users') }}"><i class="bi bi-people"></i><span>Users</span></a>
+                </nav>
+                <div class="admin-sidebar-title">Security &amp; Audit</div>
+                <nav class="nav flex-column">
+                    <a class="nav-link active" href="{{ url_for('admin.security_dashboard') }}"><i class="bi bi-shield-shaded"></i><span>Security Dashboard</span></a>
+                    <a class="nav-link" href="{{ url_for('admin.security_logs') }}"><i class="bi bi-shield-exclamation"></i><span>Security Logs</span></a>
+                    <a class="nav-link" href="{{ url_for('admin.crypto_demo') }}"><i class="bi bi-cpu"></i><span>Crypto Lab</span></a>
+                    {% if current_user.is_authenticated and current_user.is_admin %}
+                    <a class="nav-link" href="{{ url_for('security_lab.lab_dashboard') }}"><i class="bi bi-shield-fill-exclamation"></i><span>Cybersecurity Attack &amp; Defence Lab</span></a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+
+        <!-- Main Security Telemetry Content -->
+        <div class="col-lg-10">
+            <!-- Row 1: Transaction & Signature Verification Metrics -->
+            <div class="row g-4 mb-4">
+                <div class="col-sm-6 col-xl-3">
+                    <div class="admin-stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-muted small fw-semibold text-uppercase mb-1">Total Transactions</div>
+                                <div class="h2 fw-bold text-navy mb-0">{{ metrics.total_transactions }}</div>
+                                <div class="small text-muted mt-1">{{ metrics.recorded_transactions }} persisted in DB</div>
+                            </div>
+                            <div class="admin-stat-icon" style="background-color: var(--blue-50); color: var(--blue-600);">
+                                <i class="bi bi-arrow-left-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-xl-3">
+                    <div class="admin-stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-muted small fw-semibold text-uppercase mb-1">Successful Transactions</div>
+                                <div class="h2 fw-bold text-emerald mb-0">{{ metrics.successful_transactions }}</div>
+                                <div class="small text-muted mt-1"><i class="bi bi-check2-circle text-emerald me-1"></i>AES-256-GCM + OAEP</div>
+                            </div>
+                            <div class="admin-stat-icon" style="background-color: var(--emerald-50); color: var(--emerald-600);">
+                                <i class="bi bi-shield-fill-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-xl-3">
+                    <div class="admin-stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-muted small fw-semibold text-uppercase mb-1">Rejected Transactions</div>
+                                <div class="h2 fw-bold text-danger mb-0">{{ metrics.rejected_transactions }}</div>
+                                <div class="small text-muted mt-1"><i class="bi bi-x-octagon text-danger me-1"></i>Tamper / Replay / Sig Fail</div>
+                            </div>
+                            <div class="admin-stat-icon" style="background-color: var(--danger-50); color: var(--danger-600);">
+                                <i class="bi bi-shield-fill-x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-xl-3">
+                    <div class="admin-stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-muted small fw-semibold text-uppercase mb-1">Signature Verification</div>
+                                <div class="h2 fw-bold text-navy mb-0">{{ metrics.verified_signatures }} <span class="fs-6 text-muted fw-normal">Valid</span></div>
+                                <div class="small text-danger mt-1">{{ metrics.invalid_signatures }} Invalid RSA-PSS blocked</div>
+                            </div>
+                            <div class="admin-stat-icon" style="background-color: var(--blue-50); color: var(--blue-600);">
+                                <i class="bi bi-vector-pen"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 2: Attack Detection & Access Control Telemetry -->
+            <div class="row g-4 mb-4">
+                <div class="col-sm-6 col-xl-3">
+                    <div class="admin-stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-muted small fw-semibold text-uppercase mb-1">Tampering Attempts</div>
+                                <div class="h2 fw-bold text-navy mb-0">{{ metrics.tampering_attempts }}</div>
+                                <div class="small text-muted mt-1">Ciphertext / Tag / Key blocks</div>
+                            </div>
+                            <div class="admin-stat-icon" style="background-color: var(--danger-50); color: var(--danger-600);">
+                                <i class="bi bi-exclamation-octagon-fill"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-xl-3">
+                    <div class="admin-stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-muted small fw-semibold text-uppercase mb-1">Replay Attempts</div>
+                                <div class="h2 fw-bold text-navy mb-0">{{ metrics.replay_attempts }}</div>
+                                <div class="small text-muted mt-1">{{ metrics.consumed_nonces }} nonces consumed</div>
+                            </div>
+                            <div class="admin-stat-icon" style="background-color: var(--warning-50); color: var(--warning-600);">
+                                <i class="bi bi-arrow-repeat"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-xl-3">
+                    <div class="admin-stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-muted small fw-semibold text-uppercase mb-1">Unauthorized Access</div>
+                                <div class="h2 fw-bold text-navy mb-0">{{ metrics.unauthorized_attempts }}</div>
+                                <div class="small text-muted mt-1">{{ metrics.failed_logins }} failed logins blocked</div>
+                            </div>
+                            <div class="admin-stat-icon" style="background-color: var(--danger-50); color: var(--danger-600);">
+                                <i class="bi bi-person-slash"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-xl-3">
+                    <div class="admin-stat-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-muted small fw-semibold text-uppercase mb-1">HMAC Log Integrity</div>
+                                <div class="h2 fw-bold text-emerald mb-0">{{ metrics.hmac_verified_logs }} <span class="fs-6 text-muted fw-normal">Valid</span></div>
+                                <div class="small text-muted mt-1">{{ metrics.hmac_tampered_logs }} tampered records</div>
+                            </div>
+                            <div class="admin-stat-icon" style="background-color: var(--emerald-50); color: var(--emerald-600);">
+                                <i class="bi bi-file-earmark-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <!-- Blocked Attacks & Security Incidents -->
+                <div class="col-xl-7">
+                    <div class="surface-card h-100 overflow-hidden">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="h6 fw-bold text-navy mb-0">
+                                <i class="bi bi-shield-exclamation text-danger me-2"></i>Detected Security Incidents &amp; Blocked Attacks
+                            </h5>
+                            <span class="badge bg-danger">{{ security_incidents|length }} Recent Alerts</span>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0 align-middle">
+                                <thead>
+                                    <tr>
+                                        <th class="ps-3">Timestamp (IST)</th>
+                                        <th>Incident Type</th>
+                                        <th>Details</th>
+                                        <th class="pe-3">HMAC</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for log in security_incidents %}
+                                    <tr>
+                                        <td class="ps-3 small font-monospace text-muted text-nowrap" title="UTC Audit: {{ log.timestamp|format_utc_iso }}">{{ log.timestamp|format_ist }}</td>
+                                        <td><span class="badge bg-{{ log.event_badge }}">{{ log.event_type }}</span></td>
+                                        <td class="small text-navy">{{ log.description }}</td>
+                                        <td class="pe-3">
+                                            {% if log.integrity_hmac and log.verify_integrity() %}
+                                            <span class="badge badge-soft-emerald">VALID</span>
+                                            {% else %}
+                                            <span class="badge bg-danger">TAMPERED</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-4">
+                                            <i class="bi bi-check-circle text-emerald me-1"></i>No security incidents recorded yet.
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Atomically Consumed Nonce Registry -->
+                <div class="col-xl-5">
+                    <div class="surface-card h-100 overflow-hidden">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="h6 fw-bold text-navy mb-0">
+                                <i class="bi bi-clock-history text-primary me-2"></i>Consumed Nonce Registry (Replay Guard)
+                            </h5>
+                            <span class="badge badge-soft-blue">{{ metrics.consumed_nonces }} Total</span>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0 align-middle">
+                                <thead>
+                                    <tr>
+                                        <th class="ps-3">128-Bit Nonce</th>
+                                        <th>Transaction UUID</th>
+                                        <th class="pe-3">Consumed (IST)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for cn in recent_nonces %}
+                                    <tr>
+                                        <td class="ps-3"><code class="small text-navy">{{ cn.nonce[:14] }}...</code></td>
+                                        <td><code class="small text-muted">{{ cn.transaction_id[:12] }}...</code></td>
+                                        <td class="pe-3 small text-muted text-nowrap" title="UTC Audit: {{ cn.consumed_at|format_utc_iso if cn.consumed_at else '' }}">{{ cn.consumed_at|format_ist if cn.consumed_at else 'Active' }}</td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted py-4">No nonces consumed yet.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

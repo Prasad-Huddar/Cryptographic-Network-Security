@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}Products{% endblock %}
+
+{% block content %}
+<div class="bg-soft-slate border-bottom py-4">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb small mb-1">
+                        <li class="breadcrumb-item"><a href="{{ url_for('products.index') }}" class="text-decoration-none text-muted">Home</a></li>
+                        <li class="breadcrumb-item active text-navy fw-medium">Products</li>
+                    </ol>
+                </nav>
+                <h1 class="h3 fw-bold text-navy mb-0">Product Catalogue</h1>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge badge-soft-blue">
+                    <i class="bi bi-box-seam me-1"></i>{{ products.total }} Product{{ '' if products.total == 1 else 's' }} Available
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+    <!-- Search, Category Filter & Sorting Controls -->
+    <div class="surface-card p-3 p-md-4 mb-4">
+        <form method="GET" action="{{ url_for('products.product_list') }}" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label" for="catalogueSearch">Search Products</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" id="catalogueSearch" class="form-control" name="search" value="{{ search }}" placeholder="Search by product name or description...">
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-3">
+                <label class="form-label" for="catalogueCategory">Category</label>
+                <select id="catalogueCategory" class="form-select" name="category">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}" {% if cat == current_category %}selected{% endif %}>{{ cat }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-sm-6 col-md-2">
+                <label class="form-label" for="catalogueSort">Sort By</label>
+                <select id="catalogueSort" class="form-select" name="sort">
+                    <option value="name" {% if current_sort == 'name' or not current_sort %}selected{% endif %}>Name (A–Z)</option>
+                    <option value="price_asc" {% if current_sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                    <option value="price_desc" {% if current_sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                    <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Newest First</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-navy w-100">
+                    <i class="bi bi-sliders me-1"></i>Apply
+                </button>
+            </div>
+        </form>
+
+        <!-- Category Quick Pills -->
+        {% if categories %}
+        <div class="d-flex flex-wrap align-items-center gap-2 mt-3 pt-3 border-top">
+            <span class="text-muted small fw-medium me-1">Departments:</span>
+            <a href="{{ url_for('products.product_list', search=search, sort=current_sort) }}"
+               class="btn btn-sm {% if not current_category %}btn-navy{% else %}btn-outline-navy{% endif %} py-1 px-3" style="font-size: 0.78rem; border-radius: 999px;">
+                All
+            </a>
+            {% for cat in categories %}
+            <a href="{{ url_for('products.product_list', category=cat, search=search, sort=current_sort) }}"
+               class="btn btn-sm {% if cat == current_category %}btn-emerald{% else %}btn-outline-navy{% endif %} py-1 px-3" style="font-size: 0.78rem; border-radius: 999px;">
+                {{ cat }}
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    {% if search or current_category %}
+    <div class="d-flex flex-wrap justify-content-between align-items-center bg-soft-slate border rounded-3 px-3 py-2 mb-4">
+        <div class="small text-muted">
+            Showing <strong>{{ products.total }}</strong> result(s)
+            {% if search %} matching <strong>"{{ search }}"</strong>{% endif %}
+            {% if current_category %} in <strong>{{ current_category }}</strong>{% endif %}
+        </div>
+        <a href="{{ url_for('products.product_list') }}" class="btn btn-sm btn-outline-navy py-1 px-2" style="font-size: 0.78rem;">
+            <i class="bi bi-x-lg me-1"></i>Clear Filters
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- Product Grid -->
+    <div class="row g-4">
+        {% for product in products.items %}
+        <div class="col-sm-6 col-md-4 col-lg-3">
+            <div class="product-card">
+                <a href="{{ url_for('products.product_detail', product_id=product.id) }}" class="text-decoration-none">
+                    <div class="product-image-wrapper">
+                        <img src="{{ product.image_url or url_for('static', filename='images/product-placeholder.svg') }}" class="product-image" alt="{{ product.name }}">
+                        <span class="category-badge">{{ product.category }}</span>
+                        {% if product.in_stock %}
+                        <span class="stock-pill badge-soft-emerald">
+                            <i class="bi bi-check2 me-1"></i>In Stock ({{ product.stock }})
+                        </span>
+                        {% else %}
+                        <span class="stock-pill bg-danger text-white">Out of Stock</span>
+                        {% endif %}
+                    </div>
+                </a>
+
+                <div class="product-card-body">
+                    <a href="{{ url_for('products.product_detail', product_id=product.id) }}" class="product-card-title">
+                        {{ product.name }}
+                    </a>
+                    <p class="product-card-desc">{{ product.description }}</p>
+                    <div class="product-card-price">{{ product.formatted_price }}</div>
+
+                    <div class="product-card-actions">
+                        {% if current_user.is_authenticated and product.in_stock %}
+                        <form method="POST" action="{{ url_for('cart.add_item', product_id=product.id) }}" class="m-0">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="quantity" value="1">
+                            <input type="hidden" name="next" value="{{ request.url }}">
+                            <button type="submit" class="btn-add-cart">
+                                <i class="bi bi-cart-plus"></i> Add to Cart
+                            </button>
+                        </form>
+                        {% elif not product.in_stock %}
+                        <button type="button" class="btn btn-sm btn-secondary disabled" disabled>Out of Stock</button>
+                        {% else %}
+                        <a href="{{ url_for('products.product_detail', product_id=product.id) }}" class="btn-add-cart">
+                            View &amp; Buy
+                        </a>
+                        {% endif %}
+
+                        <a href="{{ url_for('products.product_detail', product_id=product.id) }}" class="btn-view-icon" title="View Details">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="surface-card text-center py-5 px-3">
+                <div class="benefit-icon-circle mx-auto mb-3">
+                    <i class="bi bi-search"></i>
+                </div>
+                <h4 class="h5 fw-bold text-navy">No products found</h4>
+                <p class="text-muted small mb-3">Try adjusting your search keywords or selecting a different category.</p>
+                <a href="{{ url_for('products.product_list') }}" class="btn btn-emerald btn-sm px-4">Reset Catalogue Filters</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if products.pages > 1 %}
+    <nav class="mt-5" aria-label="Product pagination">
+        <ul class="pagination justify-content-center">
+            {% if products.has_prev %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('products.product_list', page=products.prev_num, search=search, category=current_category, sort=current_sort) }}">&laquo; Prev</a>
+            </li>
+            {% endif %}
+            {% for page_num in products.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                {% if page_num %}
+                <li class="page-item {% if page_num == products.page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('products.product_list', page=page_num, search=search, category=current_category, sort=current_sort) }}">{{ page_num }}</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+                {% endif %}
+            {% endfor %}
+            {% if products.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('products.product_list', page=products.next_num, search=search, category=current_category, sort=current_sort) }}">Next &raquo;</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

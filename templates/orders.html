@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% block title %}My Orders{% endblock %}
+
+{% block content %}
+<!-- Customer Dashboard Welcome & Account Header -->
+<div class="bg-soft-slate border-bottom py-4">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <span class="badge badge-soft-emerald mb-2">
+                    <i class="bi bi-shield-check me-1"></i>Authenticated Customer Dashboard
+                </span>
+                <h1 class="h3 fw-bold text-navy mb-1">Welcome back, {{ current_user.name }}</h1>
+                <p class="text-muted small mb-0">Manage your account profile, order history, and cryptographic transaction receipts.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('products.product_list') }}" class="btn btn-emerald btn-sm px-3">
+                    <i class="bi bi-bag-plus me-1"></i>Shop Products
+                </a>
+                <a href="{{ url_for('auth.change_password') }}" class="btn btn-outline-navy btn-sm px-3">
+                    <i class="bi bi-key me-1"></i>Change Password
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <!-- Account Information & Security Status Overview Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="surface-card p-4 h-100">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="benefit-icon-circle">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Account Profile</div>
+                        <div class="fw-bold text-navy">{{ current_user.name }}</div>
+                    </div>
+                </div>
+                <div class="small text-muted d-flex flex-column gap-1 pt-2 border-top">
+                    <div><strong>Email:</strong> {{ current_user.email }}</div>
+                    <div><strong>Role:</strong> <span class="badge badge-soft-blue text-uppercase">{{ current_user.role }}</span></div>
+                    <div><strong>Member Since:</strong> {{ current_user.created_at.strftime('%d %b %Y') if current_user.created_at else 'Active' }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="surface-card p-4 h-100">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="benefit-icon-circle" style="background-color: var(--emerald-50); color: var(--emerald-600);">
+                        <i class="bi bi-shield-lock"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Cryptographic Identity</div>
+                        <div class="fw-bold text-navy">RSA-3072 Signing Key</div>
+                    </div>
+                </div>
+                <div class="small text-muted d-flex flex-column gap-1 pt-2 border-top">
+                    <div>
+                        <strong>Public Key Status:</strong>
+                        {% if current_user.public_key_pem %}
+                        <span class="badge badge-soft-emerald"><i class="bi bi-check2-circle me-1"></i>Registered</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Auto-Provisioned on Checkout</span>
+                        {% endif %}
+                    </div>
+                    <div><strong>Password Hash:</strong> <code>PBKDF2-HMAC-SHA256</code></div>
+                    <div><strong>Signature Suite:</strong> <code>RSA-PSS-3072-SHA256</code></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="surface-card p-4 h-100">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="benefit-icon-circle">
+                        <i class="bi bi-bag-check"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Order Summary</div>
+                        <div class="fw-bold text-navy">{{ orders|length }} Total Order{{ '' if orders|length == 1 else 's' }}</div>
+                    </div>
+                </div>
+                <div class="small text-muted d-flex flex-column gap-1 pt-2 border-top">
+                    <div><strong>Encryption Standard:</strong> <code>AES-256-GCM + RSA-OAEP</code></div>
+                    <div><strong>Replay Guard:</strong> Atomic Nonce &amp; UTC Timestamp</div>
+                    <div><strong>Cart Items:</strong> {{ cart_count|default(0) }} item(s) in cart</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Orders Table -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h4 fw-bold text-navy mb-0"><i class="bi bi-bag me-2"></i>My Orders</h2>
+    </div>
+
+    {% if orders %}
+    <div class="surface-card overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Order #</th>
+                        <th>Date</th>
+                        <th>Items</th>
+                        <th>Total Amount</th>
+                        <th>Order Status</th>
+                        <th>Cryptographic Verification</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td class="ps-4">
+                            <a href="{{ url_for('orders.order_detail', order_id=order.id) }}" class="fw-bold text-navy text-decoration-none">
+                                #{{ order.order_number }}
+                            </a>
+                        </td>
+                        <td class="small text-muted">{{ order.created_at.strftime('%d %b %Y, %H:%M') }}</td>
+                        <td class="small">{{ order.items|length }} item(s)</td>
+                        <td class="fw-bold text-navy">{{ order.formatted_total }}</td>
+                        <td>
+                            <span class="badge bg-{{ order.status_badge }}">{{ order.status|capitalize }}</span>
+                        </td>
+                        <td>
+                            {% if order.transaction %}
+                            <div class="d-flex flex-wrap gap-1">
+                                <span class="badge badge-soft-emerald">
+                                    <i class="bi bi-lock-fill me-1"></i>AES-256-GCM
+                                </span>
+                                <span class="badge badge-soft-blue">
+                                    <i class="bi bi-patch-check-fill me-1"></i>{{ order.transaction.verification_status }}
+                                </span>
+                            </div>
+                            {% else %}
+                            <span class="badge bg-secondary">Standard</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-4">
+                            <div class="d-inline-flex gap-2">
+                                <a href="{{ url_for('orders.order_detail', order_id=order.id) }}" class="btn btn-sm btn-outline-navy">
+                                    <i class="bi bi-eye me-1"></i>Details
+                                </a>
+                                {% if order.transaction %}
+                                <a href="{{ url_for('orders.transaction_detail', transaction_id=order.transaction.transaction_id) }}"
+                                   class="btn btn-sm btn-emerald" title="View Cryptographic Receipt">
+                                    <i class="bi bi-shield-check"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="surface-card text-center py-5 px-3">
+        <div class="benefit-icon-circle mx-auto mb-3" style="width: 60px; height: 60px; font-size: 1.6rem;">
+            <i class="bi bi-bag-x"></i>
+        </div>
+        <h4 class="h5 fw-bold text-navy">No orders yet</h4>
+        <p class="text-muted small mb-4">Start shopping to place your first encrypted and digitally signed order.</p>
+        <a href="{{ url_for('products.product_list') }}" class="btn btn-emerald px-4">
+            <i class="bi bi-grid me-2"></i>Browse Products
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
