@@ -59,4 +59,3 @@ An academic and practical prototype of a **Secure E-Commerce Transaction System*
 ## Documentation
 
 - [CRYPTOGRAPHY_DOCUMENTATION.md](CRYPTOGRAPHY_DOCUMENTATION.md) — Detailed technical documentation of all cryptographic algorithms, replay protection, TLS 1.3 setup, and the 11-step client / 12-step server transaction workflow.
-- [PHASE2_REPORT.md](PHASE2_REPORT.md) — Phase 2 implementation report, database schema changes, and full test execution results.
